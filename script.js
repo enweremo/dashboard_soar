@@ -51,71 +51,82 @@ function updateCharts() {
   const threats = chartData.threats || [];
 
   if (currentTab === "incident") {
-    const severityMap = {
-      Low: "#4caf50", Medium: "#ff9800", High: "#f44336", Critical: "#9c27b0", Unknown: "#607d8b"
-    };
-    const severities = ["Low", "Medium", "High", "Critical", "Unknown"];
-    const autoData = [], manualData = [], colors = [];
+  const severityMap = {
+    Low: "#4caf50", Medium: "#ff9800", High: "#f44336", Critical: "#9c27b0", Unknown: "#607d8b"
+  };
+  const severities = ["Low", "Medium", "High", "Critical", "Unknown"];
+  const autoData = [], manualData = [];
 
-    severities.forEach(sev => {
-      const group = remediations.filter(r => (r.severity || "Unknown").toLowerCase() === sev.toLowerCase());
-      autoData.push(group.filter(r => !r.sns_sent).length);
-      manualData.push(group.filter(r => r.sns_sent).length);
-      colors.push(severityMap[sev] || "#ccc");
-    });
+  severities.forEach(sev => {
+    const group = remediations.filter(r => (r.severity || "Unknown").toLowerCase() === sev.toLowerCase());
+    autoData.push(group.filter(r => !r.sns_sent).length);
+    manualData.push(group.filter(r => r.sns_sent).length);
+  });
 
-    chart1 = new Chart(ctx1, {
-      type: "bar",
-      data: {
-        labels: severities,
-        datasets: [
-          { label: "Automated", data: autoData, backgroundColor: colors },
-          { label: "Manual Review", data: manualData, backgroundColor: "gold" }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          title: { display: true, text: "Findings by Severity & Review Type" },
-          legend: { position: "top" }
+  chart1 = new Chart(ctx1, {
+    type: "bar",
+    data: {
+      labels: severities,
+      datasets: [
+        {
+          label: "Automated",
+          data: autoData,
+          backgroundColor: severities.map(sev => severityMap[sev] || "#ccc"),
+          categoryPercentage: 0.5,
+          barPercentage: 0.9
         },
-        scales: {
-          x: {
-            stacked: false,
-            title: { display: true, text: "Severity" },
-            ticks: { maxRotation: 0, minRotation: 0 }
-          },
-          y: {
-            beginAtZero: true,
-            title: { display: true, text: "Count" }
-          }
+        {
+          label: "Manual Review",
+          data: manualData,
+          backgroundColor: severities.map(() => "gold"),
+          categoryPercentage: 0.5,
+          barPercentage: 0.9
         }
-      }
-    });
-
-    const total = remediations.length || 1;
-    const completed = remediations.filter(r => r.action_status === "completed").length;
-
-    chart2 = new Chart(ctx2, {
-      type: "doughnut",
-      data: {
-        labels: ["Success", "Remaining"],
-        datasets: [{
-          data: [completed, total - completed],
-          backgroundColor: ["green", "#ccc"]
-        }]
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        title: { display: true, text: "Findings by Severity & Review Type" },
+        legend: { position: "top" }
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        cutout: "60%",
-        plugins: {
-          title: { display: true, text: "Remediation Success Rate" },
-          legend: { position: "top" }
+      scales: {
+        x: {
+          stacked: false,
+          title: { display: true, text: "Severity" },
+          ticks: { maxRotation: 0, minRotation: 0 }
+        },
+        y: {
+          beginAtZero: true,
+          title: { display: true, text: "Count" }
         }
       }
-    });
+    }
+  });
+
+  const total = remediations.length || 1;
+  const completed = remediations.filter(r => r.action_status === "completed").length;
+
+  chart2 = new Chart(ctx2, {
+    type: "doughnut",
+    data: {
+      labels: ["Success", "Remaining"],
+      datasets: [{
+        data: [completed, total - completed],
+        backgroundColor: ["green", "#ccc"]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: "60%",
+      plugins: {
+        title: { display: true, text: "Remediation Success Rate" },
+        legend: { position: "top" }
+      }
+    }
+  });
 
   } else if (currentTab === "performance") {
     const labelMap = {

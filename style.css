@@ -69,9 +69,6 @@ canvas {
   border-radius: 10px;
   padding: 10px;
   box-sizing: border-box;
-  display: block;
-  vertical-align: top;
-  margin-top: 0;
 }
 
 /* Mobile/tablet responsive layout */
@@ -82,9 +79,8 @@ canvas {
   }
 
   canvas {
-    max-width: 90%;
-    width: 100%;
-    height: auto;
+    width: 90% !important;
+    height: auto !important;
   }
 
   .controls {
