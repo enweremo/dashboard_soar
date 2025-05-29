@@ -1,7 +1,7 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: #f0f2f5;
+  background: linear-gradient(to right, #e0f7fa, #cdeefc);
   color: #003333;
 }
 
@@ -27,6 +27,7 @@ body {
   font-size: 14px;
   border-radius: 5px;
   border: 1px solid #ccc;
+  background-color: #ffffff;
 }
 
 .tabs {
@@ -58,13 +59,13 @@ body {
   gap: 20px;
 }
 
-/*consistent chart height + alignment */
+/* Consistent canvas size with nice styling */
 canvas {
   flex: 1 1 48%;
   min-width: 320px;
   max-width: 600px;
   height: 360px;
-  background-color: white;
+  background-color: #ffffff;
   border: 1px solid #ddd;
   border-radius: 10px;
   padding: 10px;
@@ -79,7 +80,7 @@ canvas {
   }
 
   canvas {
-    width: 90% !important;
+    width: 95% !important;
     height: auto !important;
   }
 
