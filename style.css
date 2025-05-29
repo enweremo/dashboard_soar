@@ -1,12 +1,12 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: linear-gradient(to right, #cceaff, #a3e4f8);
+  background: #f0f2f5;
   color: #003333;
 }
 
 .container {
-  max-width: 1100px;
+  max-width: 1400px;
   margin: auto;
   padding: 20px;
   text-align: center;
@@ -17,7 +17,7 @@ body {
   justify-content: center;
   flex-wrap: wrap;
   gap: 10px;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
 .controls input,
@@ -30,11 +30,11 @@ body {
 }
 
 .tabs {
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
 .tab-btn {
-  background: #e6faff;
+  background: #e0f7fa;
   border: none;
   padding: 10px 15px;
   margin: 0 5px;
@@ -46,7 +46,7 @@ body {
 
 .tab-btn.active,
 .tab-btn:hover {
-  background-color: #008080;
+  background-color: #00796b;
   color: white;
 }
 
@@ -58,8 +58,12 @@ body {
 }
 
 canvas {
-  flex: 1 1 45%;
+  flex: 1 1 48%;
   min-width: 300px;
-  max-width: 500px;
+  max-width: 700px;
   height: 400px;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 10px;
 }
