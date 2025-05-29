@@ -71,7 +71,7 @@ function updateCharts() {
           {
             label: "Manual Review",
             data: manualCounts,
-            backgroundColor: "gold"
+            backgroundColor: "orange"
           }
         ]
       },
@@ -79,16 +79,16 @@ function updateCharts() {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          title: { display: true, text: "Findings by Severity & Review Type" },
+          title: { display: true, text: "Findings by Severity & Review Type", font: { weight: "bold", size: 16 } },
           legend: { position: "top" }
         },
         scales: {
           x: {
-            title: { display: true, text: "Severity Category" }
+            title: { display: true, text: "Severity Category", font: { weight: "bold", size: 14 } }
           },
           y: {
             beginAtZero: true,
-            title: { display: true, text: "Number of Events" }
+            title: { display: true, text: "Number of Events", font: { weight: "bold", size: 14 } }
           }
         }
       }
@@ -96,16 +96,13 @@ function updateCharts() {
 
     const total = remediations.length || 1;
     const completed = remediations.filter(r => r.action_status === "completed").length;
-    const successPct = ((completed / total) * 100).toFixed(1);
-    const remainingPct = (100 - successPct).toFixed(1);
+    const successRate = ((completed / total) * 100).toFixed(1);
+    const remainingRate = (100 - successRate).toFixed(1);
 
     chart2 = new Chart(ctx2, {
       type: "doughnut",
       data: {
-        labels: [
-          `Success = ${successPct}%`,
-          `Remaining = ${remainingPct}%`
-        ],
+        labels: [`% Remediation Success Rate = ${successRate}%`, `% Remaining = ${remainingRate}%`],
         datasets: [{
           data: [completed, total - completed],
           backgroundColor: ["green", "#ccc"]
@@ -114,11 +111,11 @@ function updateCharts() {
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        cutout: "60%",
         plugins: {
-          title: { display: true, text: "Remediation Success Rate" },
+          title: { display: true, text: "Remediation Success Rate", font: { weight: "bold", size: 16 } },
           legend: { position: "top" }
-        }
+        },
+        cutout: "60%"
       }
     });
 
@@ -140,9 +137,10 @@ function updateCharts() {
       countMap[type] = (countMap[type] || 0) + 1;
     });
 
-    const labels = Object.keys(countMap);
-    const shortLabels = labels.map(l => labelMap[l] || l);
+    const rawLabels = Object.keys(countMap);
+    const shortLabels = rawLabels.map(l => labelMap[l] || l);
     const values = Object.values(countMap);
+    const colors = shortLabels.map((_, i) => `hsl(${i * 40}, 70%, 55%)`);
 
     chart1 = new Chart(ctx1, {
       type: "bar",
@@ -151,23 +149,23 @@ function updateCharts() {
         datasets: [{
           label: "Top Finding Types",
           data: values,
-          backgroundColor: "teal"
+          backgroundColor: colors
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          title: { display: true, text: "Top GuardDuty Finding Types" }
+          title: { display: true, text: "Top GuardDuty Finding Types", font: { weight: "bold", size: 16 } }
         },
         scales: {
           x: {
-            title: { display: true, text: "Threat Type" },
-            ticks: { maxRotation: 90, minRotation: 90 }
+            ticks: { maxRotation: 90, minRotation: 90 },
+            title: { display: true, text: "Threat Type", font: { weight: "bold", size: 14 } }
           },
           y: {
             beginAtZero: true,
-            title: { display: true, text: "Count of Events" }
+            title: { display: true, text: "Count of Events", font: { weight: "bold", size: 14 } }
           }
         }
       }
@@ -180,9 +178,8 @@ function updateCharts() {
       if (!isNaN(r.latency_seconds)) latencyMap[type].push(parseFloat(r.latency_seconds));
     });
 
-    const mttrLabels = Object.keys(latencyMap);
-    const mttrValues = mttrLabels.map(k => {
-      const list = latencyMap[k];
+    const mttrLabels = Object.keys(latencyMap).map(l => labelMap[l] || l);
+    const mttrValues = Object.values(latencyMap).map(list => {
       const total = list.reduce((a, b) => a + b, 0);
       return Number((total / list.length).toFixed(2));
     });
@@ -190,7 +187,7 @@ function updateCharts() {
     chart2 = new Chart(ctx2, {
       type: "line",
       data: {
-        labels: mttrLabels.map(l => labelMap[l] || l),
+        labels: mttrLabels,
         datasets: [{
           label: "Avg Response Time (s)",
           data: mttrValues,
@@ -203,15 +200,15 @@ function updateCharts() {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          title: { display: true, text: "Mean Time to Automated Response (MTTR)" }
+          title: { display: true, text: "Mean Time to Automated Response (MTTR)", font: { weight: "bold", size: 16 } }
         },
         scales: {
           x: {
-            title: { display: true, text: "Threat Type" },
-            ticks: { maxRotation: 90, minRotation: 90 }
+            title: { display: true, text: "Threat Type", font: { weight: "bold", size: 14 } }
           },
           y: {
-            title: { display: true, text: "Time (Seconds)" }
+            beginAtZero: true,
+            title: { display: true, text: "Response Time (s)", font: { weight: "bold", size: 14 } }
           }
         }
       }
@@ -226,12 +223,13 @@ function updateCharts() {
 
     const sevLabels = Object.keys(sevDist);
     const sevValues = Object.values(sevDist);
-    const sevColors = ["#f44336", "#ffca28", "#66bb6a", "#29b6f6", "#8d6e63"];
+    const sevColors = sevLabels.map((_, i) => `hsl(${i * 40}, 70%, 55%)`);
+    const total = sevValues.reduce((a, b) => a + b, 0);
 
     chart1 = new Chart(ctx1, {
       type: "pie",
       data: {
-        labels: sevLabels.map((s, i) => `${s} (${sevValues[i]}, ${(sevValues[i] / sevValues.reduce((a, b) => a + b, 0) * 100).toFixed(1)}%)`),
+        labels: sevLabels.map((s, i) => `${s} (${sevValues[i]}, ${(sevValues[i] / total * 100).toFixed(1)}%)`),
         datasets: [{
           data: sevValues,
           backgroundColor: sevColors
@@ -241,7 +239,7 @@ function updateCharts() {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          title: { display: true, text: "Severity Distribution (%)" },
+          title: { display: true, text: "Severity Distribution (%)", font: { weight: "bold", size: 16 } },
           legend: { position: "right" }
         }
       }
@@ -270,14 +268,15 @@ function updateCharts() {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          title: { display: true, text: "Manual Reviews Over Time (SNS Sent)" }
+          title: { display: true, text: "Manual Reviews Over Time (SNS Sent)", font: { weight: "bold", size: 16 } }
         },
         scales: {
           x: {
-            title: { display: true, text: "Date" }
+            title: { display: true, text: "Date", font: { weight: "bold", size: 14 } }
           },
           y: {
-            title: { display: true, text: "Count of Events" }
+            beginAtZero: true,
+            title: { display: true, text: "Number of Events", font: { weight: "bold", size: 14 } }
           }
         }
       }
