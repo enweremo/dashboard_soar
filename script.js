@@ -45,10 +45,10 @@ function updateCharts() {
   canvas1.className = "";
   canvas2.className = "";
 
-  const remediations = chartData.remediations || [];
+  const remediations = chartData.remediations?.filter(r => (r.finding_type || "") !== "Unknown") || [];
 
   if (currentTab === "incident") {
-    const severities = ["Low", "Medium", "High", "Critical", "Unknown"];
+    const severities = ["Low", "Medium", "High", "Critical"];
     const autoCounts = [];
     const manualCounts = [];
 
@@ -63,16 +63,8 @@ function updateCharts() {
       data: {
         labels: severities,
         datasets: [
-          {
-            label: "Automated",
-            data: autoCounts,
-            backgroundColor: "green"
-          },
-          {
-            label: "Manual Review",
-            data: manualCounts,
-            backgroundColor: "orange"
-          }
+          { label: "Automated", data: autoCounts, backgroundColor: "green" },
+          { label: "Manual Review", data: manualCounts, backgroundColor: "orange" }
         ]
       },
       options: {
@@ -123,7 +115,7 @@ function updateCharts() {
     const labelMap = {
       "UnauthorizedAccess:EC2/SSHBruteForce": "SSHBruteForce",
       "Recon:EC2/PortProbeUnprotectedPort": "PortScanning",
-      "Persistence:IAMUser/AnomalousBehavior": "IAMAnomalousBehavior",
+      "Persistence:IAMUser/AnomalousBehavior": "IAMUserAnomalousBehavior",
       "UnauthorizedAccess:IAMUser/Exfiltration": "IAMExfiltration",
       "TorAccess": "TorAccess",
       "UnauthorizedAccess:EC2/WebLoginAbuse": "WebLoginAbuse",
@@ -133,12 +125,13 @@ function updateCharts() {
 
     const countMap = {};
     remediations.forEach(r => {
-      const type = r.finding_type || "Unknown";
+      const type = r.finding_type || "";
+      if (type === "Unknown") return;
       countMap[type] = (countMap[type] || 0) + 1;
     });
 
-    const rawLabels = Object.keys(countMap);
-    const shortLabels = rawLabels.map(l => labelMap[l] || l);
+    const labels = Object.keys(countMap);
+    const shortLabels = labels.map(l => labelMap[l] || l);
     const values = Object.values(countMap);
     const colors = shortLabels.map((_, i) => `hsl(${i * 40}, 70%, 55%)`);
 
@@ -173,7 +166,8 @@ function updateCharts() {
 
     const latencyMap = {};
     remediations.forEach(r => {
-      const type = r.finding_type || "Unknown";
+      const type = r.finding_type || "";
+      if (type === "Unknown") return;
       if (!latencyMap[type]) latencyMap[type] = [];
       if (!isNaN(r.latency_seconds)) latencyMap[type].push(parseFloat(r.latency_seconds));
     });
@@ -204,6 +198,7 @@ function updateCharts() {
         },
         scales: {
           x: {
+            ticks: { maxRotation: 90, minRotation: 90 },
             title: { display: true, text: "Threat Type", font: { weight: "bold", size: 14 } }
           },
           y: {
@@ -221,8 +216,8 @@ function updateCharts() {
       sevDist[sev] = (sevDist[sev] || 0) + 1;
     });
 
-    const sevLabels = Object.keys(sevDist);
-    const sevValues = Object.values(sevDist);
+    const sevLabels = Object.keys(sevDist).filter(l => l !== "Unknown");
+    const sevValues = sevLabels.map(l => sevDist[l]);
     const sevColors = sevLabels.map((_, i) => `hsl(${i * 40}, 70%, 55%)`);
     const total = sevValues.reduce((a, b) => a + b, 0);
 
