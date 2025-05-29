@@ -14,15 +14,15 @@ body {
 
 .controls {
   display: flex;
-  justify-content: center;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 10px;
   margin-bottom: 20px;
 }
 
-.controls input,
 .controls select,
-.controls button {
+.controls button,
+.controls label {
   padding: 8px;
   font-size: 14px;
   border-radius: 5px;
@@ -54,16 +54,53 @@ body {
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
+  align-items: flex-start;
   gap: 20px;
 }
 
+/*consistent chart height + alignment */
 canvas {
   flex: 1 1 48%;
-  min-width: 300px;
-  max-width: 700px;
-  height: 400px;
+  min-width: 320px;
+  max-width: 600px;
+  height: 360px;
   background-color: white;
   border: 1px solid #ddd;
   border-radius: 10px;
   padding: 10px;
+  box-sizing: border-box;
+  display: block;
+  vertical-align: top;
+  margin-top: 0;
+}
+
+/* Mobile/tablet responsive layout */
+@media (max-width: 768px) {
+  .charts {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  canvas {
+    max-width: 90%;
+    width: 100%;
+    height: auto;
+  }
+
+  .controls {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .tabs {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .tab-btn {
+    width: 100%;
+    max-width: 250px;
+    margin: auto;
+  }
 }

@@ -6,7 +6,6 @@ let chartData = { threats: [], remediations: [], blocked_ips: [] };
 document.addEventListener("DOMContentLoaded", () => {
   fetchData();
   document.getElementById("dateRange").addEventListener("change", fetchData);
-  document.getElementById("threatFilter").addEventListener("input", updateCharts);
   document.getElementById("autoRefresh").addEventListener("change", toggleAutoRefresh);
   toggleAutoRefresh();
 });
@@ -33,63 +32,71 @@ function fetchData() {
       chartData = data;
       updateCharts();
     })
-    .catch(err => console.error("Failed to fetch data:", err));
+    .catch(err => console.error("Fetch failed:", err));
 }
 
 function updateCharts() {
-  const ctx1 = document.getElementById("chart1").getContext("2d");
-  const ctx2 = document.getElementById("chart2").getContext("2d");
+  const canvas1 = document.getElementById("chart1");
+  const canvas2 = document.getElementById("chart2");
+  const ctx1 = canvas1.getContext("2d");
+  const ctx2 = canvas2.getContext("2d");
+
   if (chart1) chart1.destroy();
   if (chart2) chart2.destroy();
 
-  const filter = document.getElementById("threatFilter").value.toLowerCase();
-  const threats = chartData.threats.filter(t => JSON.stringify(t).toLowerCase().includes(filter));
-  const remediations = chartData.remediations;
-  const blockedIPs = chartData.blocked_ips;
+  canvas1.className = "";
+  canvas2.className = "";
+
+  const remediations = chartData.remediations || [];
+  const threats = chartData.threats || [];
 
   if (currentTab === "incident") {
-    // Chart 1: Grouped Vertical Bars (Severity + Review Type)
-    const severityMap = {};
-    remediations.forEach(r => {
-      const sev = r.severity || "Unknown";
-      const type = r.sns_sent ? "Manual" : "Automated";
-      if (!severityMap[sev]) severityMap[sev] = { Automated: 0, Manual: 0 };
-      severityMap[sev][type]++;
+    const severityMap = {
+      Low: "#4caf50", Medium: "#ff9800", High: "#f44336", Critical: "#9c27b0", Unknown: "#607d8b"
+    };
+    const severities = ["Low", "Medium", "High", "Critical", "Unknown"];
+    const autoData = [], manualData = [], colors = [];
+
+    severities.forEach(sev => {
+      const group = remediations.filter(r => (r.severity || "Unknown").toLowerCase() === sev.toLowerCase());
+      autoData.push(group.filter(r => !r.sns_sent).length);
+      manualData.push(group.filter(r => r.sns_sent).length);
+      colors.push(severityMap[sev] || "#ccc");
     });
 
-    const severities = Object.keys(severityMap);
     chart1 = new Chart(ctx1, {
       type: "bar",
       data: {
         labels: severities,
         datasets: [
-          {
-            label: "Automated",
-            data: severities.map(s => severityMap[s].Automated),
-            backgroundColor: "green"
-          },
-          {
-            label: "Manual",
-            data: severities.map(s => severityMap[s].Manual),
-            backgroundColor: "orange"
-          }
+          { label: "Automated", data: autoData, backgroundColor: colors },
+          { label: "Manual Review", data: manualData, backgroundColor: "gold" }
         ]
       },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
           title: { display: true, text: "Findings by Severity & Review Type" },
+          legend: { position: "top" }
         },
         scales: {
-          x: { stacked: false },
-          y: { beginAtZero: true }
+          x: {
+            stacked: false,
+            title: { display: true, text: "Severity" },
+            ticks: { maxRotation: 0, minRotation: 0 }
+          },
+          y: {
+            beginAtZero: true,
+            title: { display: true, text: "Count" }
+          }
         }
       }
     });
 
-    // Chart 2: Doughnut - Remediation Success Rate
     const total = remediations.length || 1;
     const completed = remediations.filter(r => r.action_status === "completed").length;
+
     chart2 = new Chart(ctx2, {
       type: "doughnut",
       data: {
@@ -100,17 +107,28 @@ function updateCharts() {
         }]
       },
       options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: "60%",
         plugins: {
           title: { display: true, text: "Remediation Success Rate" },
           legend: { position: "top" }
-        },
-        cutout: "70%",
-        responsive: true
+        }
       }
     });
 
   } else if (currentTab === "performance") {
-    // Chart 1: Vertical Bar (Top Finding Types)
+    const labelMap = {
+      "UnauthorizedAccess:EC2/SSHBruteForce": "SSHBruteForce",
+      "Recon:EC2/PortProbeUnprotectedPort": "PortScanning",
+      "Persistence:IAMUser/AnomalousBehavior": "IAMAnamolousBehavior",
+      "UnauthorizedAccess:IAMUser/Exfiltration": "IAMExfiltration",
+      "TorAccess": "TorAccess",
+      "UnauthorizedAccess:EC2/WebLoginAbuse": "WebLoginAbuse",
+      "UnauthorizedAccess:S3/AnonymousUser": "S3UnauthorizedAccess",
+      "GeoLocation:HighRiskAccess": "GeoIPThreat"
+    };
+
     const countMap = {};
     remediations.forEach(r => {
       const type = r.finding_type || "Unknown";
@@ -118,13 +136,14 @@ function updateCharts() {
     });
 
     const labels = Object.keys(countMap);
+    const shortLabels = labels.map(l => labelMap[l] || l);
     const values = Object.values(countMap);
-    const colors = labels.map((_, i) => `hsl(${i * 40}, 70%, 55%)`);
+    const colors = labels.map((_, i) => `hsl(${i * 45}, 70%, 55%)`);
 
     chart1 = new Chart(ctx1, {
       type: "bar",
       data: {
-        labels,
+        labels: shortLabels,
         datasets: [{
           label: "Top Finding Types",
           data: values,
@@ -132,33 +151,44 @@ function updateCharts() {
         }]
       },
       options: {
+        responsive: true,
+        maintainAspectRatio: false,
         plugins: {
-          title: { display: true, text: "Top GuardDuty Finding Types Acted Upon" }
+          title: { display: true, text: "Top GuardDuty Finding Types" }
         },
-        responsive: true
+        scales: {
+          x: {
+            ticks: {
+              maxRotation: 0,
+              minRotation: 0,
+              callback: function(value) {
+                return value; // No slant
+              }
+            }
+          },
+          y: { beginAtZero: true }
+        }
       }
     });
 
-    // Chart 2: Line Chart (MTTR)
     const latencyMap = {};
     remediations.forEach(r => {
-      const f = r.finding_type || "Unknown";
-      if (!latencyMap[f]) latencyMap[f] = [];
-      if (!isNaN(r.latency_seconds)) {
-        latencyMap[f].push(parseFloat(r.latency_seconds));
-      }
+      const type = r.finding_type || "Unknown";
+      if (!latencyMap[type]) latencyMap[type] = [];
+      if (!isNaN(r.latency_seconds)) latencyMap[type].push(parseFloat(r.latency_seconds));
     });
 
     const mttrLabels = Object.keys(latencyMap);
     const mttrValues = mttrLabels.map(k => {
-      const total = latencyMap[k].reduce((a, b) => a + b, 0);
-      return Number((total / latencyMap[k].length).toFixed(2));
+      const list = latencyMap[k];
+      const total = list.reduce((a, b) => a + b, 0);
+      return Number((total / list.length).toFixed(2));
     });
 
     chart2 = new Chart(ctx2, {
       type: "line",
       data: {
-        labels: mttrLabels,
+        labels: mttrLabels.map(l => labelMap[l] || l),
         datasets: [{
           label: "Avg Response Time (s)",
           data: mttrValues,
@@ -169,6 +199,7 @@ function updateCharts() {
       },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
           title: { display: true, text: "Mean Time to Automated Response (MTTR)" }
         }
@@ -176,7 +207,6 @@ function updateCharts() {
     });
 
   } else if (currentTab === "health") {
-    // Chart 1: Pie Chart - Severity Distribution
     const sevDist = {};
     remediations.forEach(r => {
       const sev = r.severity || "Unknown";
@@ -198,6 +228,7 @@ function updateCharts() {
       },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
           title: { display: true, text: "Severity Distribution (%)" },
           legend: { position: "right" }
@@ -205,7 +236,6 @@ function updateCharts() {
       }
     });
 
-    // Chart 2: Line Chart - SNS Review Volume
     const reviewMap = {};
     remediations.forEach(r => {
       if (!r.sns_sent) return;
@@ -213,16 +243,13 @@ function updateCharts() {
       reviewMap[d] = (reviewMap[d] || 0) + 1;
     });
 
-    const dates = Object.keys(reviewMap);
-    const counts = Object.values(reviewMap);
-
     chart2 = new Chart(ctx2, {
       type: "line",
       data: {
-        labels: dates,
+        labels: Object.keys(reviewMap),
         datasets: [{
           label: "SNS Manual Reviews",
-          data: counts,
+          data: Object.values(reviewMap),
           borderColor: "red",
           backgroundColor: "transparent",
           tension: 0.3
@@ -230,6 +257,7 @@ function updateCharts() {
       },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
           title: { display: true, text: "Manual Reviews Over Time (SNS Sent)" }
         }
@@ -240,19 +268,17 @@ function updateCharts() {
 
 function downloadCSV(type) {
   const data = chartData[type];
-  if (!data || data.length === 0) return alert("No data to download.");
+  if (!data || !data.length) return alert("No data to download.");
 
   const headers = Object.keys(data[0]);
-  const csvRows = [
+  const csv = [
     headers.join(","),
     ...data.map(row => headers.map(h => `"${row[h] ?? ''}"`).join(","))
-  ];
+  ].join("\n");
 
-  const blob = new Blob([csvRows.join("\n")], { type: "text/csv" });
+  const blob = new Blob([csv], { type: "text/csv" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
   a.download = `${type}_${Date.now()}.csv`;
-  document.body.appendChild(a);
   a.click();
-  document.body.removeChild(a);
 }
