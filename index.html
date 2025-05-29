@@ -1,0 +1,64 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cloud SOAR Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Cloud SOAR Dashboard</h1>
+        <div class="controls">
+            <label>Date Range:
+                <select id="dateRange">
+                    <option value="1">Last 24 Hours</option>
+                    <option value="7" selected>Last 7 Days</option>
+                    <option value="30">Last 30 Days</option>
+                </select>
+            </label>
+
+            <label>Threat Type:
+                <select id="threatFilter">
+                    <option value="All">All</option>
+                    <option value="SSHBruteForce">SSHBruteForce</option>
+                    <option value="PortScanning">PortScanning</option>
+                    <option value="WebLoginAbuse">WebLoginAbuse</option>
+                    <option value="GeoIPThreat">GeoIPThreat</option>
+                    <option value="S3UnauthorizedAccess">S3UnauthorizedAccess</option>
+                    <option value="TorClientTraffic">TorClientTraffic</option>
+                    <option value="IAMAnomalousBehavior">IAMAnomalousBehavior</option>
+                </select>
+            </label>
+
+            <label><input type="checkbox" id="autoRefresh" checked> Auto Refresh</label>
+
+            <button id="downloadThreats">Download ThreatMetadata CSV</button>
+            <button id="downloadRemediations">Download RemediationLog CSV</button>
+        </div>
+        <nav>
+            <button onclick="setTab('incident')">Incident & Automation</button>
+            <button onclick="setTab('threats')">Threats & Performance</button>
+            <button onclick="setTab('system')">System Health</button>
+        </nav>
+    </header>
+
+    <main id="charts">
+        <div class="tab" id="tab-incident">
+            <canvas id="severityAutomationChart"></canvas>
+            <canvas id="remediationSuccessGauge"></canvas>
+        </div>
+        <div class="tab" id="tab-threats">
+            <canvas id="topFindingsChart"></canvas>
+            <canvas id="responseTimeChart"></canvas>
+        </div>
+        <div class="tab" id="tab-system">
+            <canvas id="remediationVolumeChart"></canvas>
+            <canvas id="manualReviewChart"></canvas>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
