@@ -1,261 +1,228 @@
 const apiUrl = "https://q2wy1am2oj.execute-api.us-east-1.amazonaws.com/prod/data";
 let currentTab = "incident";
-let charts = {};
-let rawData = { threats: [], remediations: [], blocked_ips: [] };
-let refreshInterval = null;
+let chart1, chart2;
+let autoRefreshId;
 
-document.getElementById("daysSelect").addEventListener("change", fetchData);
-document.getElementById("autoRefresh").addEventListener("change", () => {
-  if (document.getElementById("autoRefresh").checked) {
-    refreshInterval = setInterval(fetchData, 60000);
-  } else {
-    clearInterval(refreshInterval);
-  }
+document.addEventListener("DOMContentLoaded", () => {
+  fetchAndRenderCharts();
+  document.getElementById("dateRange").addEventListener("change", fetchAndRenderCharts);
+  document.getElementById("threatFilter").addEventListener("input", fetchAndRenderCharts);
+  document.getElementById("autoRefresh").addEventListener("change", toggleAutoRefresh);
+
+  toggleAutoRefresh();
 });
-fetchData();
+
+function toggleAutoRefresh() {
+  clearInterval(autoRefreshId);
+  if (document.getElementById("autoRefresh").checked) {
+    autoRefreshId = setInterval(fetchAndRenderCharts, 60000);
+  }
+}
 
 function switchTab(tab) {
   currentTab = tab;
   document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
-  event.target.classList.add("active");
-  renderCharts();
+  document.getElementById(`btn-${tab}`).classList.add("active");
+  fetchAndRenderCharts();
 }
 
-function fetchData() {
-  const days = document.getElementById("daysSelect").value;
+function fetchAndRenderCharts() {
+  const days = document.getElementById("dateRange").value;
+  const filter = document.getElementById("threatFilter").value.toLowerCase();
   fetch(`${apiUrl}?days=${days}`)
     .then(res => res.json())
-    .then(data => {
-      rawData = data;
-      renderCharts();
-    })
-    .catch(err => console.error("Data fetch failed", err));
+    .then(data => renderCharts(data, filter))
+    .catch(err => console.error("Data fetch failed:", err));
 }
 
-function renderCharts() {
-  destroyCharts();
+function renderCharts(data, filter) {
+  const ctx1 = document.getElementById("chart1").getContext("2d");
+  const ctx2 = document.getElementById("chart2").getContext("2d");
+  if (chart1) chart1.destroy();
+  if (chart2) chart2.destroy();
+
+  const threats = data.threats || [];
+  const remediations = data.remediations || [];
+
   if (currentTab === "incident") {
-    drawSeverityAutomationChart();
-    drawRemediationGauge();
-  } else if (currentTab === "performance") {
-    drawTopFindingsChart();
-    drawMTTRChart();
-  } else if (currentTab === "health") {
-    drawRemediationVolumeBar();
-    drawSNSLineChart();
-  }
-}
+    // Chart 1: Stacked Bar - Severity & Automation
+    const severityGroups = {};
+    remediations.forEach(r => {
+      if (!r.severity) return;
+      const sev = r.severity;
+      const type = r.sns_sent ? "Manual" : "Automated";
+      severityGroups[sev] = severityGroups[sev] || { Automated: 0, Manual: 0 };
+      severityGroups[sev][type]++;
+    });
 
-function destroyCharts() {
-  Object.values(charts).forEach(chart => chart.destroy());
-  charts = {};
-}
+    const severities = Object.keys(severityGroups);
+    chart1 = new Chart(ctx1, {
+      type: 'bar',
+      data: {
+        labels: severities,
+        datasets: [
+          {
+            label: 'Automated',
+            data: severities.map(s => severityGroups[s].Automated),
+            backgroundColor: 'green'
+          },
+          {
+            label: 'Manual',
+            data: severities.map(s => severityGroups[s].Manual),
+            backgroundColor: 'gold'
+          }
+        ]
+      },
+      options: {
+        plugins: { title: { display: true, text: 'Findings by Severity & Automation Status' } },
+        responsive: true,
+        scales: { x: { stacked: true }, y: { stacked: true } }
+      }
+    });
 
-function drawSeverityAutomationChart() {
-  const ctx = document.getElementById("barChart").getContext("2d");
-  const severityBuckets = { Low: [0, 0], Medium: [0, 0], High: [0, 0], Critical: [0, 0] };
+    // Chart 2: Gauge (Doughnut) - Remediation Success
+    const total = remediations.length;
+    const completed = remediations.filter(r => r.action_status === "completed").length;
 
-  rawData.remediations.forEach(item => {
-    const sev = (item.severity || "Unknown").toString().charAt(0).toUpperCase() + item.severity.slice(1).toLowerCase();
-    if (severityBuckets[sev]) {
-      const idx = item.sns_sent ? 0 : 1;
-      severityBuckets[sev][idx]++;
-    }
-  });
-
-  charts.severity = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: Object.keys(severityBuckets),
-      datasets: [
-        {
-          label: "Automated",
-          backgroundColor: "green",
-          data: Object.values(severityBuckets).map(x => x[0])
+    chart2 = new Chart(ctx2, {
+      type: 'doughnut',
+      data: {
+        labels: ['Success', 'Remaining'],
+        datasets: [{
+          data: [completed, total - completed],
+          backgroundColor: ['green', '#ccc']
+        }]
+      },
+      options: {
+        plugins: {
+          title: { display: true, text: 'Remediation Success Rate' },
+          legend: { position: 'top' }
         },
-        {
-          label: "Manual",
-          backgroundColor: "gold",
-          data: Object.values(severityBuckets).map(x => x[1])
-        }
-      ]
-    },
-    options: {
-      plugins: { title: { display: true, text: "Findings by Severity & Automation" } },
-      responsive: true
-    }
-  });
-}
-
-function drawRemediationGauge() {
-  const ctx = document.getElementById("pieChart").getContext("2d");
-  const success = rawData.remediations.filter(r => r.action_status === "completed").length;
-  const total = rawData.remediations.length;
-  const remaining = total - success;
-
-  charts.gauge = new Chart(ctx, {
-    type: "doughnut",
-    data: {
-      labels: ["Success", "Remaining"],
-      datasets: [{
-        data: [success, remaining],
-        backgroundColor: ["green", "lightgray"]
-      }]
-    },
-    options: {
-      plugins: {
-        title: { display: true, text: "Remediation Success Rate" },
-        legend: { position: "top" }
+        cutout: '70%'
       }
-    }
-  });
-}
+    });
 
-function drawTopFindingsChart() {
-  const ctx = document.getElementById("barChart").getContext("2d");
-  const counts = {};
+  } else if (currentTab === "performance") {
+    // Chart 1: Horizontal Bar - Top Findings
+    const countByFinding = {};
+    remediations.forEach(r => {
+      const f = r.finding_type || 'Unknown';
+      countByFinding[f] = (countByFinding[f] || 0) + 1;
+    });
+    const findings = Object.keys(countByFinding);
+    const counts = Object.values(countByFinding);
 
-  rawData.remediations.forEach(item => {
-    const type = item.finding_type || "Unknown";
-    counts[type] = (counts[type] || 0) + 1;
-  });
-
-  const labels = Object.keys(counts);
-  const values = Object.values(counts);
-
-  charts.topFindings = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels,
-      datasets: [{
-        label: "Top Finding Types",
-        data: values,
-        backgroundColor: "#29b6f6"
-      }]
-    },
-    options: {
-      plugins: {
-        title: { display: true, text: "Top GuardDuty Finding Types Acted Upon" }
+    chart1 = new Chart(ctx1, {
+      type: 'bar',
+      data: {
+        labels: findings,
+        datasets: [{
+          label: 'Top Finding Types',
+          data: counts,
+          backgroundColor: '#3ec1d3'
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        plugins: { title: { display: true, text: 'Top GuardDuty Finding Types Acted Upon' } },
+        responsive: true
       }
-    }
-  });
-}
+    });
 
-function drawMTTRChart() {
-  const ctx = document.getElementById("pieChart").getContext("2d");
-  const times = {};
+    // Chart 2: Line - Mean Time to Respond
+    const latencyData = {};
+    remediations.forEach(r => {
+      if (!r.latency_seconds || isNaN(r.latency_seconds)) return;
+      const f = r.finding_type || "Unknown";
+      latencyData[f] = latencyData[f] || [];
+      latencyData[f].push(parseFloat(r.latency_seconds));
+    });
 
-  rawData.remediations.forEach(item => {
-    const type = item.finding_type || "Unknown";
-    const latency = parseFloat(item.latency_seconds) || 0;
-    if (!times[type]) times[type] = [];
-    times[type].push(latency);
-  });
+    const labels = Object.keys(latencyData);
+    const averages = labels.map(k => {
+      const total = latencyData[k].reduce((a, b) => a + b, 0);
+      return (total / latencyData[k].length).toFixed(2);
+    });
 
-  const labels = Object.keys(times);
-  const values = labels.map(label =>
-    (times[label].reduce((a, b) => a + b, 0) / times[label].length).toFixed(1)
-  );
-
-  charts.mttr = new Chart(ctx, {
-    type: "line",
-    data: {
-      labels,
-      datasets: [{
-        label: "Avg Response Time (s)",
-        data: values,
-        borderColor: "orange",
-        fill: false,
-        tension: 0.3
-      }]
-    },
-    options: {
-      plugins: {
-        title: { display: true, text: "Mean Time to Automated Response (MTTR)" }
+    chart2 = new Chart(ctx2, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Avg Response Time (s)',
+          data: averages,
+          borderColor: 'orange',
+          backgroundColor: 'transparent',
+          tension: 0.2
+        }]
+      },
+      options: {
+        plugins: { title: { display: true, text: 'Mean Time to Automated Response (MTTR)' } },
+        responsive: true
       }
-    }
-  });
-}
+    });
 
-function drawRemediationVolumeBar() {
-  const ctx = document.getElementById("barChart").getContext("2d");
-  const daily = {};
+  } else if (currentTab === "health") {
+    // Chart 1: Bar - Auto vs Manual Daily
+    const dateMap = {};
+    remediations.forEach(r => {
+      const day = (r.time_occurred || '').split("T")[0] || "unknown";
+      dateMap[day] = dateMap[day] || { auto: 0, manual: 0 };
+      if (r.sns_sent) dateMap[day].manual++;
+      else dateMap[day].auto++;
+    });
 
-  rawData.remediations.forEach(item => {
-    const date = item.time_detected?.split("T")[0] || "unknown";
-    const key = item.sns_sent ? "auto" : "manual";
-    if (!daily[date]) daily[date] = { auto: 0, manual: 0 };
-    daily[date][key]++;
-  });
-
-  const dates = Object.keys(daily);
-  const auto = dates.map(d => daily[d].auto);
-  const manual = dates.map(d => daily[d].manual);
-
-  charts.volume = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: dates,
-      datasets: [
-        { label: "Automated", backgroundColor: "green", data: auto },
-        { label: "Manual", backgroundColor: "orange", data: manual }
-      ]
-    },
-    options: {
-      plugins: {
-        title: { display: true, text: "Daily Auto vs Manual Remediation Volume" }
+    const dates = Object.keys(dateMap);
+    chart1 = new Chart(ctx1, {
+      type: 'bar',
+      data: {
+        labels: dates,
+        datasets: [
+          {
+            label: "Automated",
+            data: dates.map(d => dateMap[d].auto),
+            backgroundColor: "green"
+          },
+          {
+            label: "Manual",
+            data: dates.map(d => dateMap[d].manual),
+            backgroundColor: "orange"
+          }
+        ]
+      },
+      options: {
+        plugins: { title: { display: true, text: 'Daily Auto vs Manual Remediation Volume' } },
+        responsive: true
       }
-    }
-  });
-}
+    });
 
-function drawSNSLineChart() {
-  const ctx = document.getElementById("pieChart").getContext("2d");
-  const daily = {};
+    // Chart 2: Line - Manual Reviews
+    const reviewMap = {};
+    remediations.forEach(r => {
+      if (!r.sns_sent) return;
+      const d = (r.time_occurred || '').split("T")[0];
+      reviewMap[d] = (reviewMap[d] || 0) + 1;
+    });
 
-  rawData.remediations.forEach(item => {
-    const date = item.time_detected?.split("T")[0] || "unknown";
-    if (!daily[date]) daily[date] = 0;
-    if (item.review_required) daily[date]++;
-  });
+    const rLabels = Object.keys(reviewMap);
+    const rCounts = Object.values(reviewMap);
 
-  const dates = Object.keys(daily);
-  const values = dates.map(d => daily[d]);
-
-  charts.sns = new Chart(ctx, {
-    type: "line",
-    data: {
-      labels: dates,
-      datasets: [{
-        label: "SNS Reviews",
-        data: values,
-        borderColor: "red",
-        fill: false,
-        tension: 0.3
-      }]
-    },
-    options: {
-      plugins: {
-        title: { display: true, text: "Manual Review Volume (SNS Notifications)" }
+    chart2 = new Chart(ctx2, {
+      type: 'line',
+      data: {
+        labels: rLabels,
+        datasets: [{
+          label: 'SNS Reviews',
+          data: rCounts,
+          borderColor: 'red',
+          tension: 0.2,
+          backgroundColor: 'transparent'
+        }]
+      },
+      options: {
+        plugins: { title: { display: true, text: 'Manual Review Volume (SNS Notifications)' } },
+        responsive: true
       }
-    }
-  });
-}
-
-function downloadCSV() {
-  const tab = currentTab;
-  const rows = tab === "incident" || tab === "performance" || tab === "health"
-    ? rawData.remediations
-    : rawData.threats;
-
-  const headers = Object.keys(rows[0] || {});
-  const csv = [headers.join(",")]
-    .concat(rows.map(r => headers.map(h => `"${r[h] ?? ''}"`).join(",")))
-    .join("\n");
-
-  const blob = new Blob([csv], { type: "text/csv" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = `${tab}_${Date.now()}.csv`;
-  a.click();
+    });
+  }
 }

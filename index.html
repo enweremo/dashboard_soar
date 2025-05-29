@@ -10,6 +10,7 @@
 <body>
   <div class="container">
     <h1>Cloud SOAR Dashboard</h1>
+
     <div class="controls">
       <label>Date Range:
         <select id="daysSelect">
@@ -22,27 +23,116 @@
       <label>Threat Type:
         <input type="text" id="filterInput" placeholder="Search Threat Type"/>
       </label>
-
-      <label>Auto Refresh:
-        <input type="checkbox" id="autoRefresh" checked/>
-      </label>
-
-      <button onclick="downloadCSV()">Download ThreatMetadata CSV</button>
-      <button onclick="downloadCSV()">Download RemediationLog CSV</button>
     </div>
 
     <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab('incident')">Incident & Automation</button>
-      <button class="tab-btn" onclick="switchTab('performance')">Threats & Performance</button>
-      <button class="tab-btn" onclick="switchTab('health')">System Health</button>
+      <button class="tab-button active" onclick="showTab('tab1')">Incident & Automation</button>
+      <button class="tab-button" onclick="showTab('tab2')">Threats & Performance</button>
+      <button class="tab-button" onclick="showTab('tab3')">System Health</button>
     </div>
 
-    <div class="charts">
-      <canvas id="barChart"></canvas>
-      <canvas id="pieChart"></canvas>
+    <div id="tab1" class="tab-content active">
+      <div class="chart-row">
+        <canvas id="chart1"></canvas>
+        <canvas id="chart2"></canvas>
+      </div>
+    </div>
+
+    <div id="tab2" class="tab-content">
+      <div class="chart-row">
+        <canvas id="chart3"></canvas>
+        <canvas id="chart4"></canvas>
+      </div>
+    </div>
+
+    <div id="tab3" class="tab-content">
+      <div class="chart-row">
+        <canvas id="chart5"></canvas>
+        <canvas id="chart6"></canvas>
+      </div>
     </div>
   </div>
 
-  <script src="script.js"></script>
+  <script>
+    const apiUrl = "https://q2wy1am2oj.execute-api.us-east-1.amazonaws.com/prod/data";
+
+    function showTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      event.currentTarget.classList.add('active');
+    }
+
+    const chartInstances = {};
+
+    function initChart(id, type, label, labels, values) {
+      const ctx = document.getElementById(id).getContext('2d');
+      if (chartInstances[id]) {
+        chartInstances[id].destroy();
+      }
+      chartInstances[id] = new Chart(ctx, {
+        type,
+        data: {
+          labels: labels,
+          datasets: [{
+            label: label,
+            data: values,
+            backgroundColor: [
+              '#4caf50', '#2196f3', '#ff9800', '#f44336', '#9c27b0', '#00acc1'
+            ]
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'top' },
+            title: { display: true, text: label }
+          }
+        }
+      });
+    }
+
+    function loadDashboardData() {
+      const days = document.getElementById('daysSelect').value;
+      const filter = document.getElementById('filterInput').value.trim().toLowerCase();
+
+      fetch(`${apiUrl}?days=${days}`)
+        .then(res => res.json())
+        .then(data => {
+          const threats = data.threats.filter(t => !filter || t.type.toLowerCase().includes(filter));
+          const remediations = data.remediations;
+          const blockedIPs = data.blocked_ips;
+
+          // Tab 1: Incident & Automation
+          initChart('chart1', 'bar', 'Remediation Actions by Type',
+            remediations.map(r => r.action), remediations.map(r => r.count));
+
+          initChart('chart2', 'doughnut', 'Threat Automation Coverage',
+            threats.map(t => t.type), threats.map(t => t.auto_handled_count));
+
+          // Tab 2: Threats & Performance
+          initChart('chart3', 'bar', 'Threat Frequency',
+            threats.map(t => t.type), threats.map(t => t.count));
+
+          initChart('chart4', 'line', 'Threat Trend Over Time',
+            threats.map(t => t.date), threats.map(t => t.count));
+
+          // Tab 3: System Health
+          initChart('chart5', 'bar', 'Blocked IPs by Country',
+            blockedIPs.map(ip => ip.country), blockedIPs.map(ip => ip.count));
+
+          initChart('chart6', 'bar', 'Response Time per Action (ms)',
+            remediations.map(r => r.action), remediations.map(r => r.avg_response_time));
+        })
+        .catch(err => {
+          console.error("Failed to load dashboard data:", err);
+        });
+    }
+
+    document.getElementById('daysSelect').addEventListener('change', loadDashboardData);
+    document.getElementById('filterInput').addEventListener('input', loadDashboardData);
+
+    window.onload = loadDashboardData;
+  </script>
 </body>
 </html>

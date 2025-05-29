@@ -1,72 +1,74 @@
 body {
-  margin: 0;
   font-family: Arial, sans-serif;
-  background: linear-gradient(to right, #cceaff, #a3e4f8);
-  color: #003333;
+  background: #f5f5f5;
+  margin: 0;
+  padding: 20px;
 }
 
 .container {
-  max-width: 1100px;
+  max-width: 1400px;
   margin: auto;
-  padding: 20px;
+}
+
+h1 {
   text-align: center;
+  margin-bottom: 20px;
 }
 
 .controls {
   display: flex;
-  justify-content: center;
+  gap: 20px;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 15px;
+  justify-content: center;
+  margin-bottom: 20px;
 }
 
-.controls input,
-.controls select,
-.controls button {
-  padding: 8px;
-  font-size: 14px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
+.controls label {
+  font-weight: bold;
 }
 
 .tabs {
-  margin-bottom: 15px;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+  gap: 10px;
 }
 
-.tab-btn {
-  background: #e6faff;
+.tab-button {
+  padding: 10px 20px;
   border: none;
-  padding: 10px 15px;
-  margin: 0 5px;
-  font-weight: bold;
-  border-radius: 6px;
+  background-color: #ddd;
   cursor: pointer;
-  transition: background 0.2s;
+  border-radius: 5px;
+  font-weight: bold;
 }
 
-.tab-btn.active,
-.tab-btn:hover {
-  background-color: #008080;
+.tab-button.active {
+  background-color: #4caf50;
   color: white;
 }
 
 .tab-content {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  display: none;
 }
 
-/* Each tab shows its own chart row (2 charts side by side) */
-.tab {
+.tab-content.active {
+  display: block;
+}
+
+.chart-row {
   display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
   gap: 20px;
+  flex-wrap: wrap;
+  justify-content: space-around;
 }
 
 canvas {
-  flex: 1 1 45%;
-  min-width: 300px;
-  max-width: 500px;
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 10px;
+  width: 100%;
+  max-width: 600px;
   height: 400px;
 }
