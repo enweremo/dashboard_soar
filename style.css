@@ -58,10 +58,9 @@ body {
   gap: 20px;
 }
 
-/*consistent chart height + alignment */
 canvas {
   flex: 1 1 48%;
-  min-width: 320px;
+  min-width: 280px;
   max-width: 600px;
   height: 360px;
   background-color: white;
@@ -71,32 +70,30 @@ canvas {
   box-sizing: border-box;
 }
 
-/* Mobile/tablet responsive layout */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .charts {
     flex-direction: column;
     align-items: center;
   }
-
   canvas {
-    width: 90% !important;
-    height: auto !important;
+    min-width: 0;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 250px !important;
   }
+}
 
-  .controls {
-    flex-direction: column;
-    align-items: center;
+@media (max-width: 600px) {
+  .container {
+    padding: 5px;
   }
-
-  .tabs {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+  canvas {
+    height: 200px !important;
+    padding: 2px;
   }
-
   .tab-btn {
     width: 100%;
-    max-width: 250px;
-    margin: auto;
+    max-width: 100%;
+    margin-bottom: 8px;
   }
 }
