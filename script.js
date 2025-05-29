@@ -51,8 +51,8 @@ function updateCharts() {
     const severityMap = {};
     remediations.forEach(r => {
       const sev = r.severity || "Unknown";
-      const type = r.sns_sent ? "Manual Review" : "Automated";
-      if (!severityMap[sev]) severityMap[sev] = { Automated: 0, Manual Review: 0 };
+      const type = r.sns_sent ? "Manual" : "Automated";
+      if (!severityMap[sev]) severityMap[sev] = { Automated: 0, Manual: 0 };
       severityMap[sev][type]++;
     });
 
@@ -68,8 +68,8 @@ function updateCharts() {
             backgroundColor: "green"
           },
           {
-            label: "Manual Review",
-            data: severities.map(s => severityMap[s].Manual Review),
+            label: "Manual",
+            data: severities.map(s => severityMap[s].Manual),
             backgroundColor: "orange"
           }
         ]
