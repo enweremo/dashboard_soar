@@ -10,29 +10,31 @@
 <body>
   <div class="container">
     <h1>Cloud SOAR Dashboard</h1>
-
     <div class="controls">
-      <label for="dateRange">Date Range:</label>
-      <select id="dateRange">
-        <option value="1">Last 24 Hours</option>
-        <option value="7" selected>Last 7 Days</option>
-        <option value="30">Last 30 Days</option>
-      </select>
+      <label>Date Range:
+        <select id="daysSelect">
+          <option value="1">Last 24 Hours</option>
+          <option value="7" selected>Last 7 Days</option>
+          <option value="30">Last 30 Days</option>
+        </select>
+      </label>
 
-      <label for="threatFilter">Threat Type:</label>
-      <input type="text" id="threatFilter" placeholder="Search Threat Type" />
+      <label>Threat Type:
+        <input type="text" id="filterInput" placeholder="Search Threat Type"/>
+      </label>
 
-      <label for="autoRefresh">Auto Refresh:</label>
-      <input type="checkbox" id="autoRefresh" checked />
+      <label>Auto Refresh:
+        <input type="checkbox" id="autoRefresh" checked/>
+      </label>
 
-      <button id="downloadThreats">Download ThreatMetadata CSV</button>
-      <button id="downloadRemediations">Download RemediationLog CSV</button>
+      <button onclick="downloadCSV()">Download ThreatMetadata CSV</button>
+      <button onclick="downloadCSV()">Download RemediationLog CSV</button>
     </div>
 
     <div class="tabs">
-      <button class="tab-btn active" data-tab="incident">Incident & Automation</button>
-      <button class="tab-btn" data-tab="performance">Threats & Performance</button>
-      <button class="tab-btn" data-tab="health">System Health</button>
+      <button class="tab-btn active" onclick="switchTab('incident')">Incident & Automation</button>
+      <button class="tab-btn" onclick="switchTab('performance')">Threats & Performance</button>
+      <button class="tab-btn" onclick="switchTab('health')">System Health</button>
     </div>
 
     <div class="charts">
