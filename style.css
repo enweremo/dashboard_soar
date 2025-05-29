@@ -1,74 +1,65 @@
 body {
-  font-family: Arial, sans-serif;
-  background: #f5f5f5;
   margin: 0;
-  padding: 20px;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(to right, #cceaff, #a3e4f8);
+  color: #003333;
 }
 
 .container {
-  max-width: 1400px;
+  max-width: 1100px;
   margin: auto;
-}
-
-h1 {
+  padding: 20px;
   text-align: center;
-  margin-bottom: 20px;
 }
 
 .controls {
   display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
   justify-content: center;
-  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 15px;
 }
 
-.controls label {
-  font-weight: bold;
+.controls input,
+.controls select,
+.controls button {
+  padding: 8px;
+  font-size: 14px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
 }
 
 .tabs {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
-  gap: 10px;
+  margin-bottom: 15px;
 }
 
-.tab-button {
-  padding: 10px 20px;
+.tab-btn {
+  background: #e6faff;
   border: none;
-  background-color: #ddd;
-  cursor: pointer;
-  border-radius: 5px;
+  padding: 10px 15px;
+  margin: 0 5px;
   font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
 }
 
-.tab-button.active {
-  background-color: #4caf50;
+.tab-btn.active,
+.tab-btn:hover {
+  background-color: #008080;
   color: white;
 }
 
-.tab-content {
-  display: none;
-}
-
-.tab-content.active {
-  display: block;
-}
-
-.chart-row {
+.charts {
   display: flex;
-  gap: 20px;
+  justify-content: space-between;
   flex-wrap: wrap;
-  justify-content: space-around;
+  gap: 20px;
 }
 
 canvas {
-  background-color: white;
-  border: 1px solid #ccc;
-  padding: 10px;
-  border-radius: 10px;
-  width: 100%;
-  max-width: 600px;
+  flex: 1 1 45%;
+  min-width: 300px;
+  max-width: 500px;
   height: 400px;
 }
