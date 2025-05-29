@@ -35,17 +35,31 @@ function fetchData() {
     .catch(err => console.error("Fetch failed:", err));
 }
 
+function categorizeFindingType(type) {
+  if (!type || type === "Unknown") return null;
+  if (type.includes("SSHBruteForce")) return "SSHBruteForce";
+  if (type.includes("PortProbe")) return "PortScanning";
+  if (type.includes("AnomalousBehavior")) return "IAMUserAnomalousBehavior";
+  if (type.includes("IAMUser/Exfiltration")) return "IAMExfiltration";
+  if (type.includes("Tor")) return "TorAccess";
+  if (type.includes("WebLoginAbuse")) return "WebLoginAbuse";
+  if (type.includes("S3/AnonymousUser")) return "S3UnauthorizedAccess";
+  if (type.includes("GeoLocation") || type.includes("HighRiskAccess")) return "GeoIPThreat";
+  return null;
+}
+
 function updateCharts() {
   const canvas1 = document.getElementById("chart1");
   const canvas2 = document.getElementById("chart2");
   const ctx1 = canvas1.getContext("2d");
   const ctx2 = canvas2.getContext("2d");
+
   if (chart1) chart1.destroy();
   if (chart2) chart2.destroy();
   canvas1.className = "";
   canvas2.className = "";
 
-  const remediations = chartData.remediations?.filter(r => (r.finding_type || "") !== "Unknown") || [];
+  const remediations = chartData.remediations?.filter(r => r.finding_type !== "Unknown" && r.severity !== "Unknown") || [];
 
   if (currentTab === "incident") {
     const severities = ["Low", "Medium", "High", "Critical"];
@@ -53,7 +67,7 @@ function updateCharts() {
     const manualCounts = [];
 
     severities.forEach(sev => {
-      const group = remediations.filter(r => (r.severity || "Unknown").toLowerCase() === sev.toLowerCase());
+      const group = remediations.filter(r => (r.severity || "").toLowerCase() === sev.toLowerCase());
       autoCounts.push(group.filter(r => r.review_required === false).length);
       manualCounts.push(group.filter(r => r.review_required === true).length);
     });
@@ -112,37 +126,37 @@ function updateCharts() {
     });
 
   } else if (currentTab === "performance") {
-    const labelMap = {
-      "UnauthorizedAccess:EC2/SSHBruteForce": "SSHBruteForce",
-      "Recon:EC2/PortProbeUnprotectedPort": "PortScanning",
-      "Persistence:IAMUser/AnomalousBehavior": "IAMUserAnomalousBehavior",
-      "UnauthorizedAccess:IAMUser/Exfiltration": "IAMExfiltration",
-      "TorAccess": "TorAccess",
-      "UnauthorizedAccess:EC2/WebLoginAbuse": "WebLoginAbuse",
-      "UnauthorizedAccess:S3/AnonymousUser": "S3UnauthorizedAccess",
-      "GeoLocation:HighRiskAccess": "GeoIPThreat"
-    };
-
+    const categories = ["SSHBruteForce", "PortScanning", "IAMUserAnomalousBehavior", "IAMExfiltration", "TorAccess", "WebLoginAbuse", "S3UnauthorizedAccess", "GeoIPThreat"];
     const countMap = {};
-    remediations.forEach(r => {
-      const type = r.finding_type || "";
-      if (type === "Unknown") return;
-      countMap[type] = (countMap[type] || 0) + 1;
+    const latencyMap = {};
+
+    categories.forEach(cat => {
+      countMap[cat] = 0;
+      latencyMap[cat] = [];
     });
 
-    const labels = Object.keys(countMap);
-    const shortLabels = labels.map(l => labelMap[l] || l);
-    const values = Object.values(countMap);
-    const colors = shortLabels.map((_, i) => `hsl(${i * 40}, 70%, 55%)`);
+    remediations.forEach(r => {
+      const mapped = categorizeFindingType(r.finding_type);
+      if (!mapped) return;
+      countMap[mapped]++;
+      if (!isNaN(r.latency_seconds)) latencyMap[mapped].push(parseFloat(r.latency_seconds));
+    });
+
+    const values = categories.map(cat => countMap[cat]);
+    const avgLatencies = categories.map(cat => {
+      const data = latencyMap[cat];
+      const total = data.reduce((a, b) => a + b, 0);
+      return data.length ? Number((total / data.length).toFixed(2)) : 0;
+    });
 
     chart1 = new Chart(ctx1, {
       type: "bar",
       data: {
-        labels: shortLabels,
+        labels: categories,
         datasets: [{
           label: "Top Finding Types",
           data: values,
-          backgroundColor: colors
+          backgroundColor: categories.map((_, i) => `hsl(${i * 40}, 70%, 55%)`)
         }]
       },
       options: {
@@ -164,27 +178,13 @@ function updateCharts() {
       }
     });
 
-    const latencyMap = {};
-    remediations.forEach(r => {
-      const type = r.finding_type || "";
-      if (type === "Unknown") return;
-      if (!latencyMap[type]) latencyMap[type] = [];
-      if (!isNaN(r.latency_seconds)) latencyMap[type].push(parseFloat(r.latency_seconds));
-    });
-
-    const mttrLabels = Object.keys(latencyMap).map(l => labelMap[l] || l);
-    const mttrValues = Object.values(latencyMap).map(list => {
-      const total = list.reduce((a, b) => a + b, 0);
-      return Number((total / list.length).toFixed(2));
-    });
-
     chart2 = new Chart(ctx2, {
       type: "line",
       data: {
-        labels: mttrLabels,
+        labels: categories,
         datasets: [{
           label: "Avg Response Time (s)",
-          data: mttrValues,
+          data: avgLatencies,
           borderColor: "orange",
           backgroundColor: "transparent",
           tension: 0.3
@@ -212,11 +212,12 @@ function updateCharts() {
   } else if (currentTab === "health") {
     const sevDist = {};
     remediations.forEach(r => {
-      const sev = r.severity || "Unknown";
+      const sev = r.severity;
+      if (!sev || sev === "Unknown") return;
       sevDist[sev] = (sevDist[sev] || 0) + 1;
     });
 
-    const sevLabels = Object.keys(sevDist).filter(l => l !== "Unknown");
+    const sevLabels = Object.keys(sevDist);
     const sevValues = sevLabels.map(l => sevDist[l]);
     const sevColors = sevLabels.map((_, i) => `hsl(${i * 40}, 70%, 55%)`);
     const total = sevValues.reduce((a, b) => a + b, 0);
