@@ -84,14 +84,11 @@ function updateCharts() {
         },
         scales: {
           x: {
-            stacked: false,
-            ticks: {
-              autoSkip: false
-            }
+            title: { display: true, text: "Severity Category" }
           },
           y: {
             beginAtZero: true,
-            stacked: false
+            title: { display: true, text: "Number of Events" }
           }
         }
       }
@@ -99,11 +96,16 @@ function updateCharts() {
 
     const total = remediations.length || 1;
     const completed = remediations.filter(r => r.action_status === "completed").length;
+    const successPct = ((completed / total) * 100).toFixed(1);
+    const remainingPct = (100 - successPct).toFixed(1);
 
     chart2 = new Chart(ctx2, {
       type: "doughnut",
       data: {
-        labels: ["Success", "Remaining"],
+        labels: [
+          `Success = ${successPct}%`,
+          `Remaining = ${remainingPct}%`
+        ],
         datasets: [{
           data: [completed, total - completed],
           backgroundColor: ["green", "#ccc"]
@@ -112,11 +114,11 @@ function updateCharts() {
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        cutout: "60%",
         plugins: {
           title: { display: true, text: "Remediation Success Rate" },
           legend: { position: "top" }
-        },
-        cutout: "60%"
+        }
       }
     });
 
@@ -124,7 +126,7 @@ function updateCharts() {
     const labelMap = {
       "UnauthorizedAccess:EC2/SSHBruteForce": "SSHBruteForce",
       "Recon:EC2/PortProbeUnprotectedPort": "PortScanning",
-      "Persistence:IAMUser/AnomalousBehavior": "IAMAnamolousBehavior",
+      "Persistence:IAMUser/AnomalousBehavior": "IAMAnomalousBehavior",
       "UnauthorizedAccess:IAMUser/Exfiltration": "IAMExfiltration",
       "TorAccess": "TorAccess",
       "UnauthorizedAccess:EC2/WebLoginAbuse": "WebLoginAbuse",
@@ -141,7 +143,6 @@ function updateCharts() {
     const labels = Object.keys(countMap);
     const shortLabels = labels.map(l => labelMap[l] || l);
     const values = Object.values(countMap);
-    const colors = labels.map((_, i) => `hsl(${i * 40}, 70%, 55%)`);
 
     chart1 = new Chart(ctx1, {
       type: "bar",
@@ -150,7 +151,7 @@ function updateCharts() {
         datasets: [{
           label: "Top Finding Types",
           data: values,
-          backgroundColor: colors
+          backgroundColor: "teal"
         }]
       },
       options: {
@@ -161,9 +162,13 @@ function updateCharts() {
         },
         scales: {
           x: {
+            title: { display: true, text: "Threat Type" },
             ticks: { maxRotation: 90, minRotation: 90 }
           },
-          y: { beginAtZero: true }
+          y: {
+            beginAtZero: true,
+            title: { display: true, text: "Count of Events" }
+          }
         }
       }
     });
@@ -199,6 +204,15 @@ function updateCharts() {
         maintainAspectRatio: false,
         plugins: {
           title: { display: true, text: "Mean Time to Automated Response (MTTR)" }
+        },
+        scales: {
+          x: {
+            title: { display: true, text: "Threat Type" },
+            ticks: { maxRotation: 90, minRotation: 90 }
+          },
+          y: {
+            title: { display: true, text: "Time (Seconds)" }
+          }
         }
       }
     });
@@ -212,7 +226,7 @@ function updateCharts() {
 
     const sevLabels = Object.keys(sevDist);
     const sevValues = Object.values(sevDist);
-    const sevColors = sevLabels.map((_, i) => `hsl(${i * 40}, 70%, 55%)`);
+    const sevColors = ["#f44336", "#ffca28", "#66bb6a", "#29b6f6", "#8d6e63"];
 
     chart1 = new Chart(ctx1, {
       type: "pie",
@@ -257,6 +271,14 @@ function updateCharts() {
         maintainAspectRatio: false,
         plugins: {
           title: { display: true, text: "Manual Reviews Over Time (SNS Sent)" }
+        },
+        scales: {
+          x: {
+            title: { display: true, text: "Date" }
+          },
+          y: {
+            title: { display: true, text: "Count of Events" }
+          }
         }
       }
     });
