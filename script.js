@@ -48,6 +48,7 @@ function updateCharts() {
   const blockedIPs = chartData.blocked_ips;
 
   if (currentTab === "incident") {
+    // Chart 1: Grouped Vertical Bars (Severity + Review Type)
     const severityMap = {};
     remediations.forEach(r => {
       const sev = r.severity || "Unknown";
@@ -79,12 +80,16 @@ function updateCharts() {
         plugins: {
           title: { display: true, text: "Findings by Severity & Review Type" },
         },
-        scales: { x: { stacked: false }, y: { beginAtZero: true } }
+        scales: {
+          x: { stacked: false },
+          y: { beginAtZero: true }
+        }
       }
     });
 
+    // Chart 2: Doughnut - Remediation Success Rate
+    const total = remediations.length || 1;
     const completed = remediations.filter(r => r.action_status === "completed").length;
-    const total = remediations.length;
     chart2 = new Chart(ctx2, {
       type: "doughnut",
       data: {
@@ -105,6 +110,7 @@ function updateCharts() {
     });
 
   } else if (currentTab === "performance") {
+    // Chart 1: Vertical Bar (Top Finding Types)
     const countMap = {};
     remediations.forEach(r => {
       const type = r.finding_type || "Unknown";
@@ -129,22 +135,24 @@ function updateCharts() {
         plugins: {
           title: { display: true, text: "Top GuardDuty Finding Types Acted Upon" }
         },
-        responsive: true,
-        indexAxis: "x"
+        responsive: true
       }
     });
 
+    // Chart 2: Line Chart (MTTR)
     const latencyMap = {};
     remediations.forEach(r => {
       const f = r.finding_type || "Unknown";
       if (!latencyMap[f]) latencyMap[f] = [];
-      if (!isNaN(r.latency_seconds)) latencyMap[f].push(parseFloat(r.latency_seconds));
+      if (!isNaN(r.latency_seconds)) {
+        latencyMap[f].push(parseFloat(r.latency_seconds));
+      }
     });
 
     const mttrLabels = Object.keys(latencyMap);
     const mttrValues = mttrLabels.map(k => {
       const total = latencyMap[k].reduce((a, b) => a + b, 0);
-      return (total / latencyMap[k].length).toFixed(2);
+      return Number((total / latencyMap[k].length).toFixed(2));
     });
 
     chart2 = new Chart(ctx2, {
@@ -168,6 +176,7 @@ function updateCharts() {
     });
 
   } else if (currentTab === "health") {
+    // Chart 1: Pie Chart - Severity Distribution
     const sevDist = {};
     remediations.forEach(r => {
       const sev = r.severity || "Unknown";
@@ -196,6 +205,7 @@ function updateCharts() {
       }
     });
 
+    // Chart 2: Line Chart - SNS Review Volume
     const reviewMap = {};
     remediations.forEach(r => {
       if (!r.sns_sent) return;
