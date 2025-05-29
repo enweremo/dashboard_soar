@@ -40,57 +40,58 @@ function updateCharts() {
   const canvas2 = document.getElementById("chart2");
   const ctx1 = canvas1.getContext("2d");
   const ctx2 = canvas2.getContext("2d");
-
   if (chart1) chart1.destroy();
   if (chart2) chart2.destroy();
   canvas1.className = "";
   canvas2.className = "";
 
   const remediations = chartData.remediations || [];
-  const labelMap = {
-    "UnauthorizedAccess:EC2/SSHBruteForce": "SSHBruteForce",
-    "Recon:EC2/PortProbeUnprotectedPort": "PortScanning",
-    "Persistence:IAMUser/AnomalousBehavior": "IAMAnomalousBehavior",
-    "UnauthorizedAccess:IAMUser/Exfiltration": "IAMExfiltration",
-    "TorAccess": "TorAccess",
-    "UnauthorizedAccess:EC2/WebLoginAbuse": "WebLoginAbuse",
-    "UnauthorizedAccess:S3/AnonymousUser": "S3UnauthorizedAccess",
-    "GeoLocation:HighRiskAccess": "GeoIPThreat"
-  };
 
   if (currentTab === "incident") {
-    const severityLabels = ["Low", "Medium", "High", "Critical", "Unknown"];
-    const automatedCounts = [];
+    const severities = ["Low", "Medium", "High", "Critical", "Unknown"];
+    const autoCounts = [];
     const manualCounts = [];
 
-    severityLabels.forEach(sev => {
+    severities.forEach(sev => {
       const group = remediations.filter(r => (r.severity || "Unknown").toLowerCase() === sev.toLowerCase());
-      automatedCounts.push(group.filter(r => r.review_required === false).length);
+      autoCounts.push(group.filter(r => r.review_required === false).length);
       manualCounts.push(group.filter(r => r.review_required === true).length);
     });
 
     chart1 = new Chart(ctx1, {
       type: "bar",
       data: {
-        labels: severityLabels,
+        labels: severities,
         datasets: [
-          { label: "Automated", data: automatedCounts, backgroundColor: "green" },
-          { label: "Manual Review", data: manualCounts, backgroundColor: "gold" }
+          {
+            label: "Automated",
+            data: autoCounts,
+            backgroundColor: "green"
+          },
+          {
+            label: "Manual Review",
+            data: manualCounts,
+            backgroundColor: "gold"
+          }
         ]
       },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
-          title: { display: true, text: "Findings by Severity & Review Type", font: { size: 16 } },
-          legend: { position: "top", labels: { font: { size: 13 } } }
+          title: { display: true, text: "Findings by Severity & Review Type" },
+          legend: { position: "top" }
         },
         scales: {
           x: {
-            title: { display: true, text: "Severity Category", font: { size: 14 } }
+            stacked: false,
+            ticks: {
+              autoSkip: false
+            }
           },
           y: {
-            title: { display: true, text: "Count of Events", font: { size: 14 } },
-            beginAtZero: true
+            beginAtZero: true,
+            stacked: false
           }
         }
       }
@@ -98,16 +99,11 @@ function updateCharts() {
 
     const total = remediations.length || 1;
     const completed = remediations.filter(r => r.action_status === "completed").length;
-    const successPercent = ((completed / total) * 100).toFixed(0);
-    const remainingPercent = 100 - successPercent;
 
     chart2 = new Chart(ctx2, {
       type: "doughnut",
       data: {
-        labels: [
-          `Remediation Success Rate = ${successPercent}%`,
-          `Remaining = ${remainingPercent}%`
-        ],
+        labels: ["Success", "Remaining"],
         datasets: [{
           data: [completed, total - completed],
           backgroundColor: ["green", "#ccc"]
@@ -115,73 +111,84 @@ function updateCharts() {
       },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
-          title: { display: true, text: "Remediation Success Rate", font: { size: 16 } },
-          legend: { position: "top", labels: { font: { size: 13 } } }
+          title: { display: true, text: "Remediation Success Rate" },
+          legend: { position: "top" }
         },
-        cutout: "70%",
-        maintainAspectRatio: false
+        cutout: "60%"
       }
     });
 
   } else if (currentTab === "performance") {
+    const labelMap = {
+      "UnauthorizedAccess:EC2/SSHBruteForce": "SSHBruteForce",
+      "Recon:EC2/PortProbeUnprotectedPort": "PortScanning",
+      "Persistence:IAMUser/AnomalousBehavior": "IAMAnamolousBehavior",
+      "UnauthorizedAccess:IAMUser/Exfiltration": "IAMExfiltration",
+      "TorAccess": "TorAccess",
+      "UnauthorizedAccess:EC2/WebLoginAbuse": "WebLoginAbuse",
+      "UnauthorizedAccess:S3/AnonymousUser": "S3UnauthorizedAccess",
+      "GeoLocation:HighRiskAccess": "GeoIPThreat"
+    };
+
     const countMap = {};
     remediations.forEach(r => {
-      const type = labelMap[r.finding_type] || "Unknown";
+      const type = r.finding_type || "Unknown";
       countMap[type] = (countMap[type] || 0) + 1;
     });
 
-    const latencyMap = {};
-    remediations.forEach(r => {
-      const type = labelMap[r.finding_type] || "Unknown";
-      if (!latencyMap[type]) latencyMap[type] = [];
-      if (!isNaN(r.latency_seconds)) latencyMap[type].push(parseFloat(r.latency_seconds));
-    });
-
-    const types = Object.keys(countMap);
-    const counts = Object.values(countMap);
-    const latencyLabels = Object.keys(latencyMap);
-    const latencyValues = latencyLabels.map(k => {
-      const list = latencyMap[k];
-      return Number((list.reduce((a, b) => a + b, 0) / list.length).toFixed(2));
-    });
+    const labels = Object.keys(countMap);
+    const shortLabels = labels.map(l => labelMap[l] || l);
+    const values = Object.values(countMap);
+    const colors = labels.map((_, i) => `hsl(${i * 40}, 70%, 55%)`);
 
     chart1 = new Chart(ctx1, {
       type: "bar",
       data: {
-        labels: types,
+        labels: shortLabels,
         datasets: [{
-          label: "Number of Events",
-          data: counts,
-          backgroundColor: "teal"
+          label: "Top Finding Types",
+          data: values,
+          backgroundColor: colors
         }]
       },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
-          title: { display: true, text: "Top GuardDuty Finding Types", font: { size: 16 } },
-          legend: { display: false }
+          title: { display: true, text: "Top GuardDuty Finding Types" }
         },
         scales: {
           x: {
-            title: { display: true, text: "Threat Type", font: { size: 14 } },
             ticks: { maxRotation: 90, minRotation: 90 }
           },
-          y: {
-            title: { display: true, text: "Count of Events", font: { size: 14 } },
-            beginAtZero: true
-          }
+          y: { beginAtZero: true }
         }
       }
+    });
+
+    const latencyMap = {};
+    remediations.forEach(r => {
+      const type = r.finding_type || "Unknown";
+      if (!latencyMap[type]) latencyMap[type] = [];
+      if (!isNaN(r.latency_seconds)) latencyMap[type].push(parseFloat(r.latency_seconds));
+    });
+
+    const mttrLabels = Object.keys(latencyMap);
+    const mttrValues = mttrLabels.map(k => {
+      const list = latencyMap[k];
+      const total = list.reduce((a, b) => a + b, 0);
+      return Number((total / list.length).toFixed(2));
     });
 
     chart2 = new Chart(ctx2, {
       type: "line",
       data: {
-        labels: latencyLabels,
+        labels: mttrLabels.map(l => labelMap[l] || l),
         datasets: [{
           label: "Avg Response Time (s)",
-          data: latencyValues,
+          data: mttrValues,
           borderColor: "orange",
           backgroundColor: "transparent",
           tension: 0.3
@@ -189,13 +196,9 @@ function updateCharts() {
       },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
-          title: { display: true, text: "Mean Time to Automated Response (MTTR)", font: { size: 16 } },
-          legend: { labels: { font: { size: 13 } } }
-        },
-        scales: {
-          x: { title: { display: true, text: "Threat Type", font: { size: 14 } } },
-          y: { title: { display: true, text: "Time (Seconds)", font: { size: 14 } }, beginAtZero: true }
+          title: { display: true, text: "Mean Time to Automated Response (MTTR)" }
         }
       }
     });
@@ -222,9 +225,10 @@ function updateCharts() {
       },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
-          title: { display: true, text: "Severity Distribution (%)", font: { size: 16 } },
-          legend: { position: "right", labels: { font: { size: 13 } } }
+          title: { display: true, text: "Severity Distribution (%)" },
+          legend: { position: "right" }
         }
       }
     });
@@ -250,13 +254,9 @@ function updateCharts() {
       },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
-          title: { display: true, text: "Manual Reviews Over Time (SNS Sent)", font: { size: 16 } },
-          legend: { labels: { font: { size: 13 } } }
-        },
-        scales: {
-          x: { title: { display: true, text: "Date", font: { size: 14 } } },
-          y: { title: { display: true, text: "Count of Events", font: { size: 14 } }, beginAtZero: true }
+          title: { display: true, text: "Manual Reviews Over Time (SNS Sent)" }
         }
       }
     });
@@ -266,7 +266,6 @@ function updateCharts() {
 function downloadCSV(type) {
   const data = chartData[type];
   if (!data || !data.length) return alert("No data to download.");
-
   const headers = Object.keys(data[0]);
   const csv = [
     headers.join(","),
