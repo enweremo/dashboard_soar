@@ -40,7 +40,7 @@ function categorizeFindingType(type) {
   if (type.includes("SSHBruteForce")) return "SSHBruteForce";
   if (type.includes("PortProbe")) return "PortScanning";
   if (type.includes("AnomalousBehavior")) return "IAMUserAnomalousBehavior";
-  if (type.includes("IAMUser/Exfiltration")) return "IAMExfiltration";
+  if (type.includes("IAMUser/Exfiltration")) return "IAMKeyExfiltration";
   if (type.includes("Tor")) return "TorAccess";
   if (type.includes("WebLoginAbuse")) return "WebLoginAbuse";
   if (type.includes("S3/AnonymousUser")) return "S3UnauthorizedAccess";
@@ -126,7 +126,7 @@ function updateCharts() {
     });
 
   } else if (currentTab === "performance") {
-    const categories = ["SSHBruteForce", "PortScanning", "IAMUserAnomalousBehavior", "IAMExfiltration", "TorAccess", "WebLoginAbuse", "S3UnauthorizedAccess", "GeoIPThreat"];
+    const categories = ["SSHBruteForce", "PortScanning", "IAMUserAnomalousBehavior", "IAMKeyExfiltration", "TorAccess", "WebLoginAbuse", "S3UnauthorizedAccess", "GeoIPThreat"];
     const countMap = {};
     const latencyMap = {};
 
