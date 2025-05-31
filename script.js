@@ -155,9 +155,9 @@ function updateCharts() {
       "PortScanning": "#f39c12",
       "IAMUserAnomalousBehavior": "#27ae60",
       "IAMKeyExfiltration": "#8e44ad",
-      "TorAccess": "#1abc9c",
+      "TorAccess": "#8B5A2B",
       "WebLoginAbuse": "#3498db",
-      "S3UnauthorizedAccess": "#9b59b6",
+      "S3UnauthorizedAccess": "#00FFFF",
       "GeoIPThreat": "#34495e"
     };
 
