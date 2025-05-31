@@ -149,6 +149,22 @@ function updateCharts() {
       return data.length ? Number((total / data.length).toFixed(2)) : 0;
     });
 
+    // fixed color for each category
+    const fixedColors = {
+      "SSHBruteForce": "#e74c3c",
+      "PortScanning": "#f39c12",
+      "IAMUserAnomalousBehavior": "#27ae60",
+      "IAMKeyExfiltration": "#8e44ad",
+      "TorAccess": "#1abc9c",
+      "WebLoginAbuse": "#3498db",
+      "S3UnauthorizedAccess": "#9b59b6",
+      "GeoIPThreat": "#34495e"
+    };
+
+    const topIndex = values.indexOf(Math.max(...values));
+    const topCategory = categories[topIndex];
+    const topColor = fixedColors[topCategory] || "#ccc";
+
     chart1 = new Chart(ctx1, {
       type: "bar",
       data: {
@@ -156,14 +172,24 @@ function updateCharts() {
         datasets: [{
           label: "Top Finding Types",
           data: values,
-          backgroundColor: categories.map((_, i) => `hsl(${i * 40}, 70%, 55%)`)
+          backgroundColor: categories.map(cat => fixedColors[cat] || "#ccc")
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          title: { display: true, text: "Top GuardDuty Finding Types", font: { weight: "bold", size: 16 } }
+          title: { display: true, text: "Top GuardDuty Finding Types", font: { weight: "bold", size: 16 } },
+          legend: {
+            labels: {
+              generateLabels: () => [{
+                text: "Top Finding Types",
+                fillStyle: topColor,
+                strokeStyle: topColor,
+                lineWidth: 1
+              }]
+            }
+          }
         },
         scales: {
           x: {
