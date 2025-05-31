@@ -149,7 +149,6 @@ function updateCharts() {
       return data.length ? Number((total / data.length).toFixed(2)) : 0;
     });
 
-    // fixed color for each category
     const fixedColors = {
       "SSHBruteForce": "#e74c3c",
       "PortScanning": "#f39c12",
@@ -245,7 +244,15 @@ function updateCharts() {
 
     const sevLabels = Object.keys(sevDist);
     const sevValues = sevLabels.map(l => sevDist[l]);
-    const sevColors = sevLabels.map((_, i) => `hsl(${i * 40}, 70%, 55%)`);
+
+    const severityColorMap = {
+      "Critical": "#FF0000",
+      "High": "#FFA500",
+      "Medium": "#FFFF00",
+      "Low": "#90EE90"
+    };
+
+    const sevColors = sevLabels.map(label => severityColorMap[label] || "#ccc");
     const total = sevValues.reduce((a, b) => a + b, 0);
 
     chart1 = new Chart(ctx1, {
