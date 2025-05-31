@@ -246,9 +246,9 @@ function updateCharts() {
     const sevValues = sevLabels.map(l => sevDist[l]);
 
     const severityColorMap = {
-      "Critical": "#FF0000",
-      "High": "#FFA500",
-      "Medium": "#FFBF00",
+      "Critical": "#A32424",
+      "High": "#D6452A",
+      "Medium": "#F4A300",
       "Low": "#90EE90"
     };
 
@@ -294,7 +294,12 @@ function updateCharts() {
       const d = (r.time_occurred || '').split("T")[0];
       reviewMap[d] = (reviewMap[d] || 0) + 1;
     });
-
+    
+    const todayStr = new Date().toISOString().split("T")[0];
+    if (!reviewMap[todayStr]) {
+      reviewMap[todayStr] = 0;
+    }
+        
     chart2 = new Chart(ctx2, {
       type: "line",
       data: {
