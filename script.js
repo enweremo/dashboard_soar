@@ -40,7 +40,7 @@ function categorizeFindingType(type) {
   if (type.includes("SSHBruteForce")) return "SSHBruteForce";
   if (type.includes("PortProbe")) return "PortScanning";
   if (type.includes("AnomalousBehavior")) return "IAMUserAnomalousBehavior";
-  if (type.includes("IAMUser/Exfiltration")) return "IAMExfiltration";
+  if (type.includes("IAMUser/Exfiltration")) return "IAMKeyExfiltration";
   if (type.includes("Tor")) return "TorAccess";
   if (type.includes("WebLoginAbuse")) return "WebLoginAbuse";
   if (type.includes("S3/AnonymousUser")) return "S3UnauthorizedAccess";
@@ -126,7 +126,7 @@ function updateCharts() {
     });
 
   } else if (currentTab === "performance") {
-    const categories = ["SSHBruteForce", "PortScanning", "IAMUserAnomalousBehavior", "IAMExfiltration", "TorAccess", "WebLoginAbuse", "S3UnauthorizedAccess", "GeoIPThreat"];
+    const categories = ["SSHBruteForce", "PortScanning", "IAMUserAnomalousBehavior", "IAMKeyExfiltration", "TorAccess", "WebLoginAbuse", "S3UnauthorizedAccess", "GeoIPThreat"];
     const countMap = {};
     const latencyMap = {};
 
@@ -143,6 +143,9 @@ function updateCharts() {
     });
 
     const values = categories.map(cat => countMap[cat]);
+    const maxValue = Math.max(...values);
+    const barColors = values.map(v => v === maxValue ? "red" : `hsl(${Math.random() * 360}, 70%, 55%)`);
+
     const avgLatencies = categories.map(cat => {
       const data = latencyMap[cat];
       const total = data.reduce((a, b) => a + b, 0);
@@ -156,7 +159,7 @@ function updateCharts() {
         datasets: [{
           label: "Top Finding Types",
           data: values,
-          backgroundColor: categories.map((_, i) => `hsl(${i * 40}, 70%, 55%)`)
+          backgroundColor: barColors
         }]
       },
       options: {
