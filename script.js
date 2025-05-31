@@ -282,7 +282,14 @@ function updateCharts() {
           },
           legend: { position: "right" },
           datalabels: {
-            color: "#e0e0e0",
+            color: function(ctx) {
+              const label = ctx.chart.data.labels[ctx.dataIndex];
+              if (label === "Critical" || label === "High") {
+                return "#fff";
+              }
+              return "#000";
+            },
+
             font: { weight: "bold", size: 12 },
             formatter: (value, ctx) => {
               const label = ctx.chart.data.labels[ctx.dataIndex].split(" (")[0];
