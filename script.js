@@ -282,7 +282,7 @@ function updateCharts() {
           },
           legend: { position: "right" },
           datalabels: {
-            color: "#000",
+            color: "#fff",
             font: { weight: "bold", size: 12 },
             formatter: (value, ctx) => {
               const total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
