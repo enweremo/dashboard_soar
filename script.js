@@ -285,7 +285,8 @@ function updateCharts() {
             color: "#000",
             font: { weight: "bold", size: 12 },
             formatter: (value, ctx) => {
-              const label = ctx.chart.data.labels[ctx.dataIndex];
+              const label = ctx.chart.data.labels[ctx.dataIndex].split(" (")[0];
+              const total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0)
               const percentage = ((value / total) * 100).toFixed(1);
               return `${label} (${percentage}%)`;
             }
