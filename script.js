@@ -244,7 +244,6 @@ function updateCharts() {
 
     const sevLabels = Object.keys(sevDist);
     const sevValues = sevLabels.map(l => sevDist[l]);
-    const total = sevValues.reduce((a, b) => a + b, 0);
 
     const severityColorMap = {
       "Critical": "#A32424",
@@ -254,18 +253,12 @@ function updateCharts() {
     };
 
     const sevColors = sevLabels.map(label => severityColorMap[label] || "#ccc");
-
-    // Build legend labels with "label; count; percentage"
-    const legendLabels = sevLabels.map((label, i) => {
-      const count = sevValues[i];
-      const percent = ((count / total) * 100).toFixed(1);
-      return `${label} (${count}) ; (${percent}%)`;
-    });
+    const total = sevValues.reduce((a, b) => a + b, 0);
 
     chart1 = new Chart(ctx1, {
       type: "pie",
       data: {
-        labels: legendLabels,
+        labels: sevLabels,
         datasets: [{
           data: sevValues,
           backgroundColor: sevColors
@@ -282,12 +275,12 @@ function updateCharts() {
           },
           legend: { position: "right" },
           datalabels: {
-            color: "#fff",
+            color: "#000",
             font: { weight: "bold", size: 12 },
             formatter: (value, ctx) => {
-              const total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-              const percent = ((value / total) * 100).toFixed(1);
-              return `${percent}%`;
+              const label = ctx.chart.data.labels[ctx.dataIndex];
+              const percentage = ((value / total) * 100).toFixed(1);
+              return `${label} (${percentage}%)`;
             }
           }
         }
