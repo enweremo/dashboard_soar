@@ -258,14 +258,14 @@ function updateCharts() {
     const legendLabels = sevLabels.map((label, i) => {
       const count = sevValues[i];
       const percent = ((count / total) * 100).toFixed(1);
-      return `${label}; ${count}; ${percent}%`;
+      return `${label} (${count}) ; (${percent}%)`;
     });
 
 
     chart1 = new Chart(ctx1, {
       type: "pie",
       data: {
-        labels: sevLabels,
+        labels: legendLabels,
         datasets: [{
           data: sevValues,
           backgroundColor: sevColors
