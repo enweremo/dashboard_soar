@@ -282,7 +282,7 @@ function updateCharts() {
           },
           legend: { position: "right" },
           datalabels: {
-            color: "#f0f0f0",
+            color: "#e0e0e0",
             font: { weight: "bold", size: 12 },
             formatter: (value, ctx) => {
               const label = ctx.chart.data.labels[ctx.dataIndex].split(" (")[0];
