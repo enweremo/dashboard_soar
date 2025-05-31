@@ -248,7 +248,7 @@ function updateCharts() {
     const severityColorMap = {
       "Critical": "#FF0000",
       "High": "#FFA500",
-      "Medium": "#FFFF00",
+      "Medium": "#FFBF00",
       "Low": "#90EE90"
     };
 
@@ -258,7 +258,7 @@ function updateCharts() {
     chart1 = new Chart(ctx1, {
       type: "pie",
       data: {
-        labels: sevLabels.map((s, i) => `${s} (${sevValues[i]}, ${(sevValues[i] / total * 100).toFixed(1)}%)`),
+        labels: sevLabels,
         datasets: [{
           data: sevValues,
           backgroundColor: sevColors
@@ -268,10 +268,24 @@ function updateCharts() {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          title: { display: true, text: "Severity Distribution (%)", font: { weight: "bold", size: 16 } },
-          legend: { position: "right" }
+          title: {
+            display: true,
+            text: "Severity Distribution (%)",
+            font: { weight: "bold", size: 16 }
+          },
+          legend: { position: "right" },
+          datalabels: {
+            color: "#000",
+            font: { weight: "bold", size: 12 },
+            formatter: (value, ctx) => {
+              const label = ctx.chart.data.labels[ctx.dataIndex];
+              const percentage = ((value / total) * 100).toFixed(1);
+              return `${label} (${percentage}%)`;
+            }
+          }
         }
-      }
+      },
+      plugins: [ChartDataLabels]
     });
 
     const reviewMap = {};
@@ -297,7 +311,11 @@ function updateCharts() {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          title: { display: true, text: "Manual Reviews Over Time (SNS Sent)", font: { weight: "bold", size: 16 } }
+          title: {
+            display: true,
+            text: "Manual Reviews Over Time (SNS Sent)",
+            font: { weight: "bold", size: 16 }
+          }
         },
         scales: {
           x: {
