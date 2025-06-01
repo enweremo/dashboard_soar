@@ -331,10 +331,10 @@ function updateCharts() {
     chart2 = new Chart(ctx2, {
       type: "line",
       data: {
-        labels: Object.keys(reviewMap),
+        labels: sortedDates,  // <-- use sortedDates
         datasets: [{
           label: "SNS Manual Reviews",
-          data: Object.values(reviewMap),
+          data: sortedCounts, // <-- use sortedCounts
           borderColor: "red",
           backgroundColor: "transparent",
           tension: 0.3
