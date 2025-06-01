@@ -1,107 +1,100 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: linear-gradient(120deg, #b3e6fc 0%, #aee5f8 100%);
+  background: linear-gradient(120deg, #b3e7fc 0%, #c5eefa 100%);
   color: #003333;
 }
 
 .container {
   max-width: 1400px;
   margin: auto;
-  padding: 24px 20px;
+  padding: 20px;
   text-align: center;
-}
-
-h1 {
-  /* Keeps your existing title font styling */
-  font-family: Arial, sans-serif;
-  font-weight: bold;
-  color: #154a74;
-  letter-spacing: 1px;
-  margin-bottom: 10px;
 }
 
 .controls {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 12px;
-  margin-bottom: 22px;
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
-/* Style for dropdown/selects and labels (neutral and clean) */
 .controls select,
+.controls button,
 .controls label {
-  padding: 8px 12px;
-  font-size: 15px;
+  padding: 8px;
+  font-size: 14px;
   border-radius: 5px;
-  border: 1.5px solid #b5d5ea;
-  background: #e6f7fb;
-  color: #154a74;
+  border: 1px solid #ccc;
 }
 
-/* Distinct Download/Action Buttons */
 .controls button {
-  padding: 8px 24px;
-  font-size: 15px;
-  font-weight: bold;
-  background: linear-gradient(90deg, #4ecbfa 0%, #2196f3 100%);
+  background: #1db3eb;
   color: #fff;
+  font-weight: bold;
   border: none;
-  border-radius: 7px;
-  cursor: pointer;
-  box-shadow: 0 2px 10px #a7d5f7c5;
-  transition: background 0.22s, color 0.15s, box-shadow 0.18s;
-  border: 2.5px solid #2196f3;
+  box-shadow: 0 2px 0 #0d8ed8;
+  transition: background 0.2s, box-shadow 0.2s;
 }
 
 .controls button:hover {
-  background: linear-gradient(90deg, #2196f3 0%, #4ecbfa 100%);
-  color: #eaf6fb;
-  box-shadow: 0 4px 16px #67c7f8f2;
+  background: #1e88e5;
+  box-shadow: 0 3px 6px #82c6ed3a;
 }
 
-/* Tab Buttons - subtle blue, bold on active/hover */
+.tabs {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 38px;   /* More space between tabs and charts */
+  gap: 22px;             /* Space between tab buttons */
+}
+
 .tab-btn {
-  background: linear-gradient(90deg, #e3f5fc 0%, #b2e6f8 100%);
+  background: #e6f5fa;
+  color: #003333;
   border: none;
-  padding: 11px 18px;
-  margin: 0 6px;
+  padding: 14px 36px;
+  margin: 0 4px;
   font-weight: bold;
-  border-radius: 6px;
+  border-radius: 18px;      /* Full round for "pill" style */
   cursor: pointer;
-  color: #154a74;
-  font-size: 15px;
-  box-shadow: 0 1px 4px #b6e3f6b1;
+  font-size: 1.13rem;
+  box-shadow: none;
   transition: background 0.2s, color 0.2s;
+  outline: none;
 }
 
 .tab-btn.active,
-.tab-btn:hover {
-  background: linear-gradient(90deg, #2196f3 0%, #4ecbfa 100%);
+.tab-btn:focus {
+  background: #009688;
   color: #fff;
+  box-shadow: 0 2px 12px #b3e7fc55;
 }
 
-/* Chart containers */
+.tab-btn:hover:not(.active) {
+  background: #b2ebf2;
+}
+
 .charts {
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
   align-items: flex-start;
-  gap: 22px;
+  gap: 40px;
+  margin-top: 16px;
 }
 
 canvas {
   flex: 1 1 48%;
   min-width: 280px;
   max-width: 600px;
-  height: 360px;
-  background: #fff;
-  border: 4.5px solid #2196f3;   /* <-- Thick blue border */
+  height: 370px;
+  background-color: white;
+  border: 4px solid #2196f3;
   border-radius: 16px;
-  padding: 16px;
+  padding: 10px;
   box-sizing: border-box;
-  box-shadow: 0 3px 16px #b3def7b7;
 }
 
 @media (max-width: 900px) {
@@ -113,37 +106,21 @@ canvas {
     min-width: 0;
     width: 100% !important;
     max-width: 100% !important;
-    height: 260px !important;
+    height: 250px !important;
   }
 }
 
 @media (max-width: 600px) {
   .container {
-    padding: 7px;
+    padding: 5px;
   }
   canvas {
-    height: 170px !important;
-    padding: 3px;
+    height: 200px !important;
+    padding: 2px;
   }
   .tab-btn {
     width: 100%;
     max-width: 100%;
     margin-bottom: 8px;
   }
-}
-
-/* Modern Select with Custom Arrow */
-.controls select {
-  background: #e6f7fb url("data:image/svg+xml;charset=UTF-8,<svg xmlns='http://www.w3.org/2000/svg' fill='%23154974' height='24' width='24'><path d='M7 10l5 5 5-5z'/></svg>") no-repeat right 10px center/18px 18px;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  padding-right: 30px;
-}
-
-input[type="checkbox"] {
-  accent-color: #2196f3;
-  width: 18px;
-  height: 18px;
-  vertical-align: middle;
 }
