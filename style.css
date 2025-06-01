@@ -89,28 +89,42 @@ h1 {
   color: #00231a;
 }
 
+/* Chart container - flex for desktop */
 .charts {
   display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
+  flex-direction: row;
+  justify-content: center;
   align-items: flex-start;
-  gap: 16px;
+  gap: 24px;
+  width: 100%;
+  margin: 0 auto;
 }
 
-canvas {
-  flex: 1 1 46%;
+.chart-item {
+  flex: 1 1 48%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   min-width: 240px;
   max-width: 520px;
-  height: 290px;
-  background-color: white;
+  background: #fff;
   border: 2.5px solid #21aae2;
   border-radius: 11px;
-  padding: 6px;
+  padding: 10px 8px 10px 8px;
   box-sizing: border-box;
-  min-height: 180px !important;
+  margin-bottom: 0;
 }
 
-/* ---------- MOBILE OPTIMIZATION (650px and below) ---------- */
+/* Chart canvas styling */
+canvas {
+  width: 100% !important;
+  height: 290px !important;
+  min-height: 180px !important;
+  background-color: white;
+  border-radius: 10px;
+}
+
+/* ----- Mobile Optimization (≤650px): stack charts vertically ----- */
 @media (max-width: 650px) {
   h1 {
     font-size: 1.3rem;
@@ -151,45 +165,25 @@ canvas {
   }
   .charts {
     flex-direction: column;
-    align-items: center;
-    gap: 6px;
+    gap: 10px;
+    width: 100vw;
     margin: 0;
-    width: 100vw;
-    box-sizing: border-box;
+    align-items: center;
   }
-  canvas {
-    width: 100vw !important;
+  .chart-item {
+    width: 98vw !important;
     min-width: unset !important;
-    max-width: 100vw !important;
-    min-height: 140px !important;
-    height: 140px !important;
-    padding: 2px;
-    box-sizing: border-box;
-    display: block;
-    margin: 0 auto 8px auto;
-    background: white;
-  }
-}
-
-.chart-scroll {
-  width: 100%;
-  overflow-x: auto;
-  background: none;
-}
-
-@media (max-width: 650px) {
-  .chart-scroll {
-    width: 100vw;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    margin: 0 auto 8px auto;
-    background: none;
+    max-width: 98vw !important;
+    padding: 4px 2px 4px 2px;
+    margin-bottom: 4px;
   }
   canvas {
-    min-width: 450px !important;   /* Adjust this value as needed (400-600px) */
-    width: 500px !important;
-    max-width: unset !important;
-    height: 140px !important;
-    min-height: 140px !important;
+    width: 96vw !important;
+    min-width: unset !important;
+    max-width: 96vw !important;
+    height: 170px !important;
+    min-height: 110px !important;
+    margin: 0 auto;
+    display: block;
   }
 }
