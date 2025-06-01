@@ -1,7 +1,7 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: linear-gradient(120deg, #b3e7fc 0%, #c5eefa 100%);
+  background: linear-gradient(135deg, #b9ecfd 0%, #ade6fa 100%);
   color: #003333;
 }
 
@@ -12,68 +12,85 @@ body {
   text-align: center;
 }
 
+h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 24px;
+  letter-spacing: 1px;
+}
+
 .controls {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 14px;
+  margin-bottom: 24px;
 }
 
 .controls select,
-.controls button,
 .controls label {
-  padding: 8px;
-  font-size: 14px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
+  padding: 7px 10px;
+  font-size: 13px;
+  border-radius: 8px;
+  border: 1px solid #d8e9f3;
+  background: #f8fbfc;
+  color: #003333;
+  font-weight: 500;
 }
 
 .controls button {
-  background: #1db3eb;
-  color: #fff;
-  font-weight: bold;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 700;
   border: none;
-  box-shadow: 0 2px 0 #0d8ed8;
-  transition: background 0.2s, box-shadow 0.2s;
+  border-radius: 8px;
+  background: #1ca5db;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 2px 8px 0 rgba(70,185,225,0.10);
+  transition: background 0.2s, box-shadow 0.2s, color 0.2s;
 }
 
-.controls button:hover {
-  background: #1e88e5;
-  box-shadow: 0 3px 6px #82c6ed3a;
+.controls button:hover,
+.controls button:focus {
+  background: #e2ff54;
+  color: #003333;
+  box-shadow: 0 3px 12px 0 rgba(90,220,100,0.10);
+  outline: none;
 }
 
 .tabs {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
-  margin-bottom: 38px;   /* More space between tabs and charts */
-  gap: 22px;             /* Space between tab buttons */
+  gap: 16px;
+  margin-bottom: 34px;
 }
 
 .tab-btn {
-  background: #e6f5fa;
+  background: #e7f6fb;
   color: #003333;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 10px 25px;
   border: none;
-  padding: 14px 36px;
-  margin: 0 4px;
-  font-weight: bold;
-  border-radius: 18px;      /* Full round for "pill" style */
+  border-radius: 22px;
   cursor: pointer;
-  font-size: 1.13rem;
-  box-shadow: none;
-  transition: background 0.2s, color 0.2s;
-  outline: none;
+  transition: background 0.2s, color 0.2s, font-size 0.2s;
+  margin: 0 4px;
+  box-shadow: 0 1px 3px rgba(180,220,230,0.08);
 }
 
-.tab-btn.active,
-.tab-btn:focus {
-  background: #009688;
+.tab-btn.active {
+  background: #09998b;
   color: #fff;
-  box-shadow: 0 2px 12px #b3e7fc55;
+  font-size: 1.05rem;
 }
 
-.tab-btn:hover:not(.active) {
-  background: #b2ebf2;
+.tab-btn:not(.active):hover,
+.tab-btn:not(.active):focus {
+  background: #e2ff54;
+  color: #003333;
 }
 
 .charts {
@@ -81,46 +98,81 @@ body {
   justify-content: space-between;
   flex-wrap: wrap;
   align-items: flex-start;
-  gap: 40px;
-  margin-top: 16px;
+  gap: 28px;
+  margin-top: 18px;
 }
 
 canvas {
   flex: 1 1 48%;
   min-width: 280px;
   max-width: 600px;
-  height: 370px;
+  height: 360px;
   background-color: white;
-  border: 4px solid #2196f3;
+  border: 4px solid #1ca5db;
   border-radius: 16px;
-  padding: 10px;
+  padding: 14px;
   box-sizing: border-box;
+  margin-bottom: 22px;
 }
 
-@media (max-width: 900px) {
+/* Responsive adjustments for mobile */
+@media (max-width: 1000px) {
   .charts {
     flex-direction: column;
     align-items: center;
   }
   canvas {
     min-width: 0;
-    width: 100% !important;
-    max-width: 100% !important;
-    height: 250px !important;
+    width: 98% !important;
+    max-width: 98% !important;
+    height: 230px !important;
+  }
+  .tab-btn {
+    padding: 9px 8px;
+    min-width: 110px;
+    font-size: 0.92rem;
   }
 }
 
 @media (max-width: 600px) {
   .container {
-    padding: 5px;
+    padding: 4px;
   }
-  canvas {
-    height: 200px !important;
-    padding: 2px;
+  h1 {
+    font-size: 1.5rem;
+    margin-bottom: 14px;
+  }
+  .controls {
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .controls button {
+    width: 100%;
+    font-size: 0.9rem;
+    padding: 7px 0;
+    margin-bottom: 2px;
+  }
+  .controls select,
+  .controls label {
+    font-size: 0.92rem;
+    padding: 7px 7px;
+  }
+  .tabs {
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
   }
   .tab-btn {
     width: 100%;
-    max-width: 100%;
-    margin-bottom: 8px;
+    font-size: 0.97rem;
+    padding: 8px 0;
+    min-width: 80px;
+    margin-bottom: 2px;
+  }
+  canvas {
+    height: 150px !important;
+    padding: 2px;
+    margin-bottom: 7px;
   }
 }
