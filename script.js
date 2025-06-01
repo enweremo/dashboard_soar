@@ -3,6 +3,11 @@ let currentTab = "incident";
 let chart1, chart2, refreshTimer;
 let chartData = { threats: [], remediations: [], blocked_ips: [] };
 
+// Dynamic font sizing for mobile
+function getMobileChartFont(size) {
+  return window.innerWidth <= 650 ? Math.max(10, size - 4) : size;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   fetchData();
   document.getElementById("dateRange").addEventListener("change", fetchData);
@@ -39,7 +44,7 @@ function categorizeFindingType(type) {
   if (!type || type === "Unknown") return null;
   if (type.includes("SSHBruteForce")) return "SSHBruteForce";
   if (type.includes("PortProbe")) return "PortScanning";
-  if (type.includes("AnomalousBehavior")) return "IAMUserAnomalousBehavior";
+  if (type.includes("AnomalousBehavior")) return "UserAnomalousBehavior";
   if (type.includes("IAMUser/AccessKeyExfiltration")) return "IAMKeyExfiltration";
   if (type.includes("Tor")) return "TorAccess";
   if (type.includes("WebLoginAbuse")) return "WebLoginAbuse";
@@ -85,16 +90,18 @@ function updateCharts() {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          title: { display: true, text: "Findings by Severity & Review Type", font: { weight: "bold", size: 16 } },
-          legend: { position: "top" }
+          title: { display: true, text: "Findings by Severity & Review Type", font: { weight: "bold", size: getMobileChartFont(16) } },
+          legend: { position: "top", labels: { font: { size: getMobileChartFont(13) } } }
         },
         scales: {
           x: {
-            title: { display: true, text: "Severity Category", font: { weight: "bold", size: 14 } }
+            title: { display: true, text: "Severity Category", font: { weight: "bold", size: getMobileChartFont(14) } },
+            ticks: { font: { size: getMobileChartFont(12) } }
           },
           y: {
             beginAtZero: true,
-            title: { display: true, text: "Number of Events", font: { weight: "bold", size: 14 } }
+            title: { display: true, text: "Number of Events", font: { weight: "bold", size: getMobileChartFont(14) } },
+            ticks: { font: { size: getMobileChartFont(12) } }
           }
         }
       }
@@ -118,15 +125,15 @@ function updateCharts() {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          title: { display: true, text: "Remediation Success Rate", font: { weight: "bold", size: 16 } },
-          legend: { position: "top" }
+          title: { display: true, text: "Remediation Success Rate", font: { weight: "bold", size: getMobileChartFont(16) } },
+          legend: { position: "top", labels: { font: { size: getMobileChartFont(13) } } }
         },
         cutout: "60%"
       }
     });
 
   } else if (currentTab === "performance") {
-    const categories = ["SSHBruteForce", "PortScanning", "IAMUserAnomalousBehavior", "IAMKeyExfiltration", "TorAccess", "WebLoginAbuse", "S3UnauthorizedAccess", "GeoIPThreat"];
+    const categories = ["SSHBruteForce", "PortScanning", "UserAnomalousBehavior", "IAMKeyExfiltration", "TorAccess", "WebLoginAbuse", "S3UnauthorizedAccess", "GeoIPThreat"];
     const countMap = {};
     const latencyMap = {};
 
@@ -152,7 +159,7 @@ function updateCharts() {
     const fixedColors = {
       "SSHBruteForce": "#e74c3c",
       "PortScanning": "#f39c12",
-      "IAMUserAnomalousBehavior": "#27ae60",
+      "UserAnomalousBehavior": "#27ae60",
       "IAMKeyExfiltration": "#8e44ad",
       "TorAccess": "#8B5A2B",
       "WebLoginAbuse": "#3498db",
@@ -178,9 +185,10 @@ function updateCharts() {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          title: { display: true, text: "Top GuardDuty Finding Types", font: { weight: "bold", size: 16 } },
+          title: { display: true, text: "Top GuardDuty Finding Types", font: { weight: "bold", size: getMobileChartFont(16) } },
           legend: {
             labels: {
+              font: { size: getMobileChartFont(13) },
               generateLabels: () => [{
                 text: "Top Finding Types",
                 fillStyle: topColor,
@@ -192,12 +200,13 @@ function updateCharts() {
         },
         scales: {
           x: {
-            ticks: { maxRotation: 90, minRotation: 90 },
-            title: { display: true, text: "Threat Type", font: { weight: "bold", size: 14 } }
+            ticks: { maxRotation: 90, minRotation: 90, font: { size: getMobileChartFont(11) } },
+            title: { display: true, text: "Threat Type", font: { weight: "bold", size: getMobileChartFont(14) } }
           },
           y: {
             beginAtZero: true,
-            title: { display: true, text: "Count of Events", font: { weight: "bold", size: 14 } }
+            title: { display: true, text: "Count of Events", font: { weight: "bold", size: getMobileChartFont(14) } },
+            ticks: { font: { size: getMobileChartFont(11) } }
           }
         }
       }
@@ -219,16 +228,18 @@ function updateCharts() {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          title: { display: true, text: "Mean Time to Automated Response (MTTR)", font: { weight: "bold", size: 16 } }
+          title: { display: true, text: "Mean Time to Automated Response (MTTR)", font: { weight: "bold", size: getMobileChartFont(16) } },
+          legend: { labels: { font: { size: getMobileChartFont(13) } } }
         },
         scales: {
           x: {
-            ticks: { maxRotation: 90, minRotation: 90 },
-            title: { display: true, text: "Threat Type", font: { weight: "bold", size: 14 } }
+            ticks: { maxRotation: 90, minRotation: 90, font: { size: getMobileChartFont(11) } },
+            title: { display: true, text: "Threat Type", font: { weight: "bold", size: getMobileChartFont(14) } }
           },
           y: {
             beginAtZero: true,
-            title: { display: true, text: "Response Time (s)", font: { weight: "bold", size: 14 } }
+            title: { display: true, text: "Response Time (s)", font: { weight: "bold", size: getMobileChartFont(14) } },
+            ticks: { font: { size: getMobileChartFont(11) } }
           }
         }
       }
@@ -261,7 +272,6 @@ function updateCharts() {
       return `${label} (${count}) ; (${percent}%)`;
     });
 
-
     chart1 = new Chart(ctx1, {
       type: "pie",
       data: {
@@ -278,9 +288,9 @@ function updateCharts() {
           title: {
             display: true,
             text: "Severity Distribution (%)",
-            font: { weight: "bold", size: 16 }
+            font: { weight: "bold", size: getMobileChartFont(16) }
           },
-          legend: { position: "right" },
+          legend: { position: "right", labels: { font: { size: getMobileChartFont(12) } } },
           datalabels: {
             color: function(ctx) {
               const label = ctx.chart.data.labels[ctx.dataIndex];
@@ -289,8 +299,7 @@ function updateCharts() {
               }
               return "#000";
             },
-
-            font: { weight: "bold", size: 12 },
+            font: { weight: "bold", size: getMobileChartFont(11) },
             formatter: (value, ctx) => {
               const label = ctx.chart.data.labels[ctx.dataIndex].split(" (")[0];
               const total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0)
@@ -309,12 +318,12 @@ function updateCharts() {
       const d = (r.time_occurred || '').split("T")[0];
       reviewMap[d] = (reviewMap[d] || 0) + 1;
     });
-    
+
     const todayStr = new Date().toISOString().split("T")[0];
     if (!reviewMap[todayStr]) {
       reviewMap[todayStr] = 0;
     }
-        
+
     chart2 = new Chart(ctx2, {
       type: "line",
       data: {
@@ -334,16 +343,19 @@ function updateCharts() {
           title: {
             display: true,
             text: "Manual Reviews Over Time (SNS Sent)",
-            font: { weight: "bold", size: 16 }
-          }
+            font: { weight: "bold", size: getMobileChartFont(16) }
+          },
+          legend: { labels: { font: { size: getMobileChartFont(13) } } }
         },
         scales: {
           x: {
-            title: { display: true, text: "Date", font: { weight: "bold", size: 14 } }
+            title: { display: true, text: "Date", font: { weight: "bold", size: getMobileChartFont(14) } },
+            ticks: { font: { size: getMobileChartFont(11) } }
           },
           y: {
             beginAtZero: true,
-            title: { display: true, text: "Number of Events", font: { weight: "bold", size: 14 } }
+            title: { display: true, text: "Number of Events", font: { weight: "bold", size: getMobileChartFont(14) } },
+            ticks: { font: { size: getMobileChartFont(11) } }
           }
         }
       }
@@ -354,7 +366,6 @@ function updateCharts() {
   if (chart1 && typeof chart1.resize === "function") chart1.resize();
   if (chart2 && typeof chart2.resize === "function") chart2.resize();
   window.dispatchEvent(new Event('resize'));
-
 }
 
 
