@@ -126,14 +126,14 @@ canvas {
   .controls label,
   .download-btn {
     width: auto !important;
-    min-width: 85px !important;
+    min-width: 70px !important;
     font-size: 12px;
-    padding: 6px 6px;
-    margin: 0;
+    padding: 5px 5px;
+    margin: 0 1px 2px 1px;
     flex: 0 0 auto !important;
   }
   .controls label {
-    min-width: 105px !important;
+    min-width: 90px !important;
     margin-right: 0;
     margin-left: 0;
   }
@@ -144,25 +144,27 @@ canvas {
   }
   .tab-btn {
     width: 100%;
-    font-size: 13px;
-    padding: 8px 0;
+    font-size: 12px;
+    padding: 7px 0;
     margin: 0;
     border-radius: 10px;
   }
   .charts {
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 6px;
+    margin: 0;
   }
   canvas {
-    width: 100% !important;
-    min-width: 200px !important;
-    max-width: 100% !important;
+    width: 98vw !important;
+    min-width: 140px !important;
+    max-width: 98vw !important;
     min-height: 120px !important;
-    height: 120px !important;
+    height: 140px !important;
     padding: 2px;
     box-sizing: border-box;
     display: block;
-    margin: 0 auto;
+    margin: 0 auto 8px auto;
+    background: white;
   }
 }
