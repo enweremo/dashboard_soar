@@ -42,13 +42,13 @@ function fetchData() {
 
 function categorizeFindingType(type) {
   if (!type || type === "Unknown") return null;
-  if (type.includes("SSHBruteForce")) return "SSHBruteForce";
-  if (type.includes("PortProbe")) return "PortScanning";
-  if (type.includes("AnomalousBehavior")) return "UserAnomalousBehavior";
-  if (type.includes("IAMUser/AccessKeyExfiltration")) return "IAMKeyExfiltration";
-  if (type.includes("Tor")) return "TorAccess";
-  if (type.includes("WebLoginAbuse")) return "WebLoginAbuse";
-  if (type.includes("S3/AnonymousUser")) return "S3UnauthorizedAccess";
+  if (type.includes("SSHBruteForce")) return "SSH_BF";
+  if (type.includes("PortProbe")) return "Port_Scan";
+  if (type.includes("AnomalousBehavior")) return "IAM_Anom";
+  if (type.includes("IAMUser/AccessKeyExfiltration")) return "Key_Exfil";
+  if (type.includes("Tor")) return "Tor_Access";
+  if (type.includes("WebLoginAbuse")) return "Web_Abuse";
+  if (type.includes("S3/AnonymousUser")) return "S3_Unauth";
   if (type.includes("GeoLocation") || type.includes("HighRiskAccess")) return "GeoIPThreat";
   return null;
 }
@@ -133,7 +133,7 @@ function updateCharts() {
     });
 
   } else if (currentTab === "performance") {
-    const categories = ["SSHBruteForce", "PortScanning", "UserAnomalousBehavior", "IAMKeyExfiltration", "TorAccess", "WebLoginAbuse", "S3UnauthorizedAccess", "GeoIPThreat"];
+    const categories = ["SSH_BF", "Port_Scan", "IAM_Anom", "Key_Exfil", "Tor_Access", "Web_Abuse", "S3_Unauth", "GeoIPThreat"];
     const countMap = {};
     const latencyMap = {};
 
@@ -157,13 +157,13 @@ function updateCharts() {
     });
 
     const fixedColors = {
-      "SSHBruteForce": "#e74c3c",
-      "PortScanning": "#f39c12",
-      "UserAnomalousBehavior": "#27ae60",
-      "IAMKeyExfiltration": "#8e44ad",
-      "TorAccess": "#8B5A2B",
-      "WebLoginAbuse": "#3498db",
-      "S3UnauthorizedAccess": "#00FFFF",
+      "SSH_BF": "#e74c3c",
+      "Port_Scan": "#f39c12",
+      "IAM_Anom": "#27ae60",
+      "Key_Exfil": "#8e44ad",
+      "Tor_Access": "#8B5A2B",
+      "Web_Abuse": "#3498db",
+      "S3_Unauth": "#00FFFF",
       "GeoIPThreat": "#34495e"
     };
 

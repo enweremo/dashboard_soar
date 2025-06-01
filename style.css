@@ -118,8 +118,8 @@ h1 {
 /* Chart canvas styling */
 canvas {
   width: 100% !important;
-  height: 290px !important;
-  min-height: 180px !important;
+  height: 350px !important;
+  min-height: 220px !important;
   background-color: white;
   border-radius: 10px;
 }
@@ -181,8 +181,8 @@ canvas {
     width: 96vw !important;
     min-width: unset !important;
     max-width: 96vw !important;
-    height: 170px !important;
-    min-height: 110px !important;
+    height: 210px !important; 
+    min-height: 160px !important;
     margin: 0 auto;
     display: block;
   }
