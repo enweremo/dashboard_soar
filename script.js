@@ -324,6 +324,10 @@ function updateCharts() {
       reviewMap[todayStr] = 0;
     }
 
+    // *** SORT DATES AND VALUES ***
+    const sortedDates = Object.keys(reviewMap).sort();
+    const sortedCounts = sortedDates.map(date => reviewMap[date]);
+
     chart2 = new Chart(ctx2, {
       type: "line",
       data: {
