@@ -170,3 +170,26 @@ canvas {
     background: white;
   }
 }
+
+.chart-scroll {
+  width: 100%;
+  overflow-x: auto;
+  background: none;
+}
+
+@media (max-width: 650px) {
+  .chart-scroll {
+    width: 100vw;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 auto 8px auto;
+    background: none;
+  }
+  canvas {
+    min-width: 450px !important;   /* Adjust this value as needed (400-600px) */
+    width: 500px !important;
+    max-width: unset !important;
+    height: 140px !important;
+    min-height: 140px !important;
+  }
+}
