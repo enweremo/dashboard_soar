@@ -349,7 +349,14 @@ function updateCharts() {
       }
     });
   }
+
+  // Always call these at the END of updateCharts() for responsive resize!
+  if (chart1 && typeof chart1.resize === "function") chart1.resize();
+  if (chart2 && typeof chart2.resize === "function") chart2.resize();
+  window.dispatchEvent(new Event('resize'));
+
 }
+
 
 function downloadCSV(type) {
   const data = chartData[type];
