@@ -284,7 +284,7 @@ function updateCharts() {
           datalabels: {
             color: function(ctx) {
               const label = ctx.chart.data.labels[ctx.dataIndex];
-              if (label === "Critical" || label === "High") {
+              if (label.startsWith("Critical") || label.startsWith("High")) {
                 return "#fff";
               }
               return "#000";
