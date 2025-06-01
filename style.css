@@ -171,3 +171,12 @@ canvas {
     padding: 2px;
   }
 }
+
+canvas {
+  min-height: 180px !important;
+}
+@media (max-width: 650px) {
+  canvas {
+    min-height: 120px !important;
+  }
+}
