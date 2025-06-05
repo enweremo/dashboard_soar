@@ -42,6 +42,7 @@ function fetchData() {
 
 function categorizeFindingType(type) {
   if (!type || type === "Unknown") return null;
+  const t = type.toLowerCase();
   if (t.includes("sshbruteforce")) return "SSH_BF";
   if (t.includes("port")) return "Port_Scan";
   if (t.includes("iamuser/anomalousbehavior")) return "IAM_Anom";
