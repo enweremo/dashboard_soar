@@ -157,7 +157,8 @@ function updateCharts() {
     const avgLatencies = categories.map(cat => {
       const data = latencyMap[cat];
       const total = data.reduce((a, b) => a + b, 0);
-      return data.length ? Number((total / data.length).toFixed(2)) : 0;
+      const avgSec = data.length ? total / data.length : 0;
+      return Number((avgSec * 1000).toFixed(2)); // Convert to ms
     });
 
     const fixedColors = {
@@ -221,7 +222,7 @@ function updateCharts() {
       data: {
         labels: categories,
         datasets: [{
-          label: "Avg Response Time (s)",
+          label: "Avg Response Time (ms)",
           data: avgLatencies,
           borderColor: "orange",
           backgroundColor: "transparent",
@@ -242,7 +243,7 @@ function updateCharts() {
           },
           y: {
             beginAtZero: true,
-            title: { display: true, text: "Response Time (s)", font: { weight: "bold", size: getMobileChartFont(14) } },
+            title: { display: true, text: "Response Time (ms)", font: { weight: "bold", size: getMobileChartFont(14) } },
             ticks: { font: { size: getMobileChartFont(11) } }
           }
         }
