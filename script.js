@@ -257,8 +257,16 @@ function updateCharts() {
       sevDist[sev] = (sevDist[sev] || 0) + 1;
     });
 
-    const sevLabels = Object.keys(sevDist);
-    const sevValues = sevLabels.map(l => sevDist[l]);
+    const severityOrder = ["Low", "Medium", "High", "Critical"];
+    const sevLabels = [];
+    const sevValues = [];
+
+    severityOrder.forEach(sev => {
+      if (sevDist[sev]) {
+        sevLabels.push(sev);
+        sevValues.push(sevDist[sev]);
+      }
+    });
 
     const severityColorMap = {
       "Critical": "#A32424",
