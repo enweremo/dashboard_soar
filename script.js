@@ -42,14 +42,17 @@ function fetchData() {
 
 function categorizeFindingType(type) {
   if (!type || type === "Unknown") return null;
-  if (type.includes("SSHBruteForce")) return "SSH_BF";
-  if (type.includes("PortProbe")) return "Port_Scan";
-  if (type.includes("AnomalousBehavior")) return "IAM_Anom";
-  if (type.includes("IAMUser/AccessKeyExfiltration")) return "Key_Exfil";
-  if (type.includes("Tor")) return "Tor_Access";
-  if (type.includes("WebLoginAbuse")) return "Web_Abuse";
-  if (type.includes("S3/AnonymousUser")) return "S3_Unauth";
-  if (type.includes("GeoLocation") || type.includes("HighRiskAccess")) return "GeoIPThreat";
+  if (t.includes("sshbruteforce")) return "SSH_BF";
+  if (t.includes("port")) return "Port_Scan";
+  if (t.includes("iamuser/anomalousbehavior")) return "IAM_Anom";
+  if (t.includes("exfiltration")) return "Key_Exfil";
+  if (t.includes("torclient")) return "Tor_Access";
+  if (t.includes("consoleloginsuccess.b") || t.includes("webloginabuse") || t.includes("custom.web.logs"))
+    return "Web_Abuse";
+  if (t.includes("anonymoususer") || t.includes("bucketpublicaccessgranted"))
+    return "S3_Unauth";
+  if (t.includes("geolocation") || t.includes("highriskaccess") || t.includes("kalilinux"))
+    return "GeoIPThreat";
   return null;
 }
 
