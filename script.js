@@ -52,7 +52,7 @@ function categorizeFindingType(type) {
     return "Web_Abuse";
   if (t.includes("anonymoususer") || t.includes("bucketpublicaccessgranted"))
     return "S3_Unauth";
-  if (t.includes("geolocation") || t.includes("highriskaccess") || t.includes("kalilinux"))
+  if (t.includes("geolocation") || t.includes("highriskaccess") || t.includes("MaliciousIPCaller.Custom"))
     return "GeoIPThreat";
   return null;
 }
