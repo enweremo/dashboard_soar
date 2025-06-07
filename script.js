@@ -48,12 +48,9 @@ function categorizeFindingType(type) {
   if (t.includes("persistence:aws/iamuser") || t.includes("credentialaccess:iamuser") || t.includes("persistence:aws/iamuser")) return "IAM_Anom";
   if (t.includes("iamuser/accessKeyexfiltration") || t.includes("exfiltration:iamuser")) return "Key_Exfil";
   if (t.includes("torclient")) return "Tor_Access";
-  if (t.includes("consoleloginsuccess.b") || t.includes("webloginabuse") || t.includes("custom.web.logs"))
-    return "Web_Abuse";
-  if (t.includes("S3/anonymoususer") || t.includes("Policy:S3/Bucket"))
-    return "S3_Unauth";
-  if (t.includes("geolocation") || t.includes("highriskaccess") || t.includes("MaliciousIPCaller.Custom"))
-    return "GeoIPThreat";
+  if (t.includes("consoleloginsuccess.b") || t.includes("webloginabuse") || t.includes("custom.web.logs")) return "Web_Abuse";
+  if (t.includes("S3/anonymoususer") || t.includes("policy:S3/bucket")) return "S3_Unauth";
+  if (t.includes("geolocation") || t.includes("highriskaccess") || t.includes("MaliciousIPCaller.Custom")) return "GeoIPThreat";
   return null;
 }
 
