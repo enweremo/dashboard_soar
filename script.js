@@ -45,12 +45,12 @@ function categorizeFindingType(type) {
   const t = type.toLowerCase();
   if (t.includes("sshbruteforce")) return "SSH_BF";
   if (t.includes("port")) return "Port_Scan";
-  if (t.includes("iamuser/anomalousbehavior")) return "IAM_Anom";
-  if (t.includes("exfiltration")) return "Key_Exfil";
+  if (t.includes("persistence:aws/iamuser") || t.includes("credentialaccess:iamuser") || t.includes("persistence:aws/iamuser")) return "IAM_Anom";
+  if (t.includes("iamuser/accessKeyexfiltration") || t.includes("exfiltration:iamuser")) return "Key_Exfil";
   if (t.includes("torclient")) return "Tor_Access";
   if (t.includes("consoleloginsuccess.b") || t.includes("webloginabuse") || t.includes("custom.web.logs"))
     return "Web_Abuse";
-  if (t.includes("anonymoususer") || t.includes("Policy:S3"))
+  if (t.includes("S3/anonymoususer") || t.includes("Policy:S3/Bucket"))
     return "S3_Unauth";
   if (t.includes("geolocation") || t.includes("highriskaccess") || t.includes("MaliciousIPCaller.Custom"))
     return "GeoIPThreat";
