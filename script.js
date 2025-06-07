@@ -44,13 +44,16 @@ function categorizeFindingType(type) {
   if (!type || type === "Unknown") return null;
   const t = type.toLowerCase();
   if (t.includes("sshbruteforce")) return "SSH_BF";
-  if (t.includes("port")) return "Port_Scan";
-  if (t.includes("persistence:aws/iamuser") || t.includes("credentialaccess:iamuser") || t.includes("persistence:aws/iamuser")) return "IAM_Anom";
-  if (t.includes("iamuser/accessKeyexfiltration") || t.includes("exfiltration:iamuser")) return "Key_Exfil";
+  if (t.includes("portprobeunprotectedport") || t.includes("portscan")) return "Port_Scan";
+  if (t.startsWith("credentialaccess:iamuser/anomalousbehavior") ||
+      t.startsWith("persistence:iamuser/anomalousbehavior") ||
+      t.startsWith("persistence:aws/iamuser/anomalousbehavior")) return "IAM_Anom";
+  if (t.startsWith("exfiltration:iamuser/anomalousbehavior") ||
+      t.startsWith("credentialaccess:aws/iamuser/accesskeyexfiltration")) return "Key_Exfil";
   if (t.includes("torclient")) return "Tor_Access";
   if (t.includes("consoleloginsuccess.b") || t.includes("webloginabuse") || t.includes("custom.web.logs")) return "Web_Abuse";
-  if (t.includes("S3/anonymoususer") || t.includes("policy:S3/bucket")) return "S3_Unauth";
-  if (t.includes("geolocation") || t.includes("highriskaccess") || t.includes("MaliciousIPCaller.Custom")) return "GeoIPThreat";
+  if (t.includes("bucketanonymousaccessgranted") || t.includes("bucketpublicaccess") || t.includes("s3/anonymoususer")) return "S3_Unauth";
+  if (t.includes("maliciousipcaller.custom") || t.includes("geolocation") || t.includes("highriskaccess")) return "GeoIPThreat";
   return null;
 }
 
