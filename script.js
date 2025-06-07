@@ -50,7 +50,7 @@ function categorizeFindingType(type) {
   if (t.includes("torclient")) return "Tor_Access";
   if (t.includes("consoleloginsuccess.b") || t.includes("webloginabuse") || t.includes("custom.web.logs"))
     return "Web_Abuse";
-  if (t.includes("anonymoususer") || t.includes("bucketpublicaccessgranted"))
+  if (t.includes("Policy:S3") || t.includes("BucketAnonymou"))
     return "S3_Unauth";
   if (t.includes("geolocation") || t.includes("highriskaccess") || t.includes("MaliciousIPCaller.Custom"))
     return "GeoIPThreat";
