@@ -319,20 +319,26 @@ function updateCharts() {
               const percentage = ((value / total) * 100).toFixed(1);
               return `${label} (${percentage}%)`;
             },
-
             rotation: function(ctx) {
-              // Dynamic mid-angle calculation
-              const chart = ctx.chart;
-              const datasetIndex = ctx.datasetIndex;
-              const dataIndex = ctx.dataIndex;
-              const meta = chart.getDatasetMeta(datasetIndex);
-              if (!meta || !meta.data[dataIndex]) return 0;
-              const arc = meta.data[dataIndex];
-              const startAngle = arc.startAngle || arc._view?.startAngle || 0;
-              const endAngle = arc.endAngle || arc._view?.endAngle || 0;
-              const midAngle = (startAngle + endAngle) / 2;
-              return (midAngle * 180 / Math.PI);
+              try {
+                const meta = ctx.chart.getDatasetMeta(ctx.datasetIndex);
+                if (!meta || !meta.data[ctx.dataIndex]) return 0;
+                const arc = meta.data[ctx.dataIndex];
+                let startAngle = arc.startAngle !== undefined ? arc.startAngle : (arc._view ? arc._view.startAngle : 0);
+                let endAngle = arc.endAngle !== undefined ? arc.endAngle : (arc._view ? arc._view.endAngle : 0);
+                if (typeof startAngle !== "number" || typeof endAngle !== "number") return 0;
+                const midAngle = (startAngle + endAngle) / 2;
+                let deg = midAngle * 180 / Math.PI;
+                // Keep text upright: if on left side, rotate by 180°
+                if (deg > 90 && deg < 270) {
+                  deg += 180;
+                }
+                return deg;
+              } catch (e) {
+                return 0;
+              }
             }
+
           }
         }
       },
