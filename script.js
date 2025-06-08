@@ -318,7 +318,9 @@ function updateCharts() {
               const total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0)
               const percentage = ((value / total) * 100).toFixed(1);
               return `${label} (${percentage}%)`;
-            }
+            },
+            align: 'end',    
+            anchor: 'end',
           }
         }
       },
