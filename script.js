@@ -319,19 +319,19 @@ function updateCharts() {
               const percentage = ((value / total) * 100).toFixed(1);
               return `${label} (${percentage}%)`;
             },
-            rotation: function(ctx) {
-              // Dynamic mid-angle calculation
-              const chart = ctx.chart;
-              const datasetIndex = ctx.datasetIndex;
-              const dataIndex = ctx.dataIndex;
-              const meta = chart.getDatasetMeta(datasetIndex);
-              if (!meta || !meta.data[dataIndex]) return 0;
-              const arc = meta.data[dataIndex];
-              const startAngle = arc.startAngle || arc._view?.startAngle || 0;
-              const endAngle = arc.endAngle || arc._view?.endAngle || 0;
-              const midAngle = (startAngle + endAngle) / 2;
-              return (midAngle * 180 / Math.PI);   
-          }
+        rotation: function(ctx) {
+          // Dynamic mid-angle calculation
+          const chart = ctx.chart;
+          const datasetIndex = ctx.datasetIndex;
+          const dataIndex = ctx.dataIndex;
+          const meta = chart.getDatasetMeta(datasetIndex);
+          if (!meta || !meta.data[dataIndex]) return 0;
+          const arc = meta.data[dataIndex];
+          const startAngle = arc.startAngle || arc._view?.startAngle || 0;
+          const endAngle = arc.endAngle || arc._view?.endAngle || 0;
+          const midAngle = (startAngle + endAngle) / 2;
+          return (midAngle * 180 / Math.PI);  
+          },
         }
       },
       plugins: [ChartDataLabels]
