@@ -319,8 +319,7 @@ function updateCharts() {
               const percentage = ((value / total) * 100).toFixed(1);
               return `${label} (${percentage}%)`;
             },
-            align: 'end',    
-            anchor: 'end',
+            rotation: 45,   
           }
         }
       },
