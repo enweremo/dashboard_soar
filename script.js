@@ -403,6 +403,7 @@ function updateCharts() {
   if (chart1 && typeof chart1.resize === "function") chart1.resize();
   if (chart2 && typeof chart2.resize === "function") chart2.resize();
   window.dispatchEvent(new Event('resize'));
+  if (chart1 && typeof chart1.update === "function") chart1.update();
 }
 
 
