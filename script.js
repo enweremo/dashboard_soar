@@ -44,7 +44,7 @@ function categorizeFindingType(type) {
   if (!type || type === "Unknown") return null;
   const t = type.toLowerCase();
   if (t.includes("sshbruteforce")) return "SSH_BF";
-  if (t.includes("portprobeunprotectedport") || t.includes("portscan")) return "Port_Scan";
+  if (t.includes("portprobeunprotectedport") || t.includes("portscan") || t.includes("portsweep")) return "Port_Scan";
   if (t.startsWith("credentialaccess:iamuser/anomalousbehavior") ||
       t.startsWith("persistence:iamuser/anomalousbehavior") ||
       t.startsWith("persistence:aws/iamuser/anomalousbehavior")) return "IAM_Anom";
